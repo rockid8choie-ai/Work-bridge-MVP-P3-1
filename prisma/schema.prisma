@@ -1,0 +1,343 @@
+// WorkBridge — 건물 유지보수 외주 매칭
+// 설계 의도와 상태 전이는 docs/02-ERD.md 참고.
+// 핵심: scope_items 를 행으로 두어 계약 범위 조항 · 마일스톤 · 정산 단위로 재사용한다.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+// ───────── 사용자 ─────────
+
+enum UserRole {
+  client // 의뢰인 = 건물주
+  freelancer // 프리랜서 = 유지보수 전문가
+}
+
+model User {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  passwordHash String? // 소셜 전용 계정은 null
+  name         String
+  role         UserRole
+  avatarUrl    String?
+  bio          String?
+  createdAt    DateTime @default(now())
+
+  oauthAccounts  OAuthAccount[]
+  refreshTokens  RefreshToken[]
+  clientProfile  ClientProfile?
+  vendorProfile  VendorProfile?
+  projects       Project[]      @relation("ClientProjects")
+  applications   Application[]
+  reviewsWritten Review[]
+  notifications  Notification[]
+  bookmarks      Bookmark[]
+}
+
+/// 동일 이메일 가입자가 있으면 새 계정을 만들지 않고 여기에 연결한다 (B-03)
+model OAuthAccount {
+  id             String   @id @default(cuid())
+  userId         String
+  provider       String // google | kakao
+  providerUserId String
+  linkedAt       DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerUserId])
+  @@index([userId])
+}
+
+/// Access Token 만료 시 재발급 근거 (B-02). 평문 저장 금지 — 해시만 보관한다.
+model RefreshToken {
+  id        String    @id @default(cuid())
+  userId    String
+  tokenHash String    @unique
+  expiresAt DateTime
+  revokedAt DateTime? // 로그아웃 시 무효화
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+/// 건물주 프로필 — 행이 없으면 프로젝트 등록 시 입력 유도 (B-06)
+model ClientProfile {
+  userId       String  @id
+  buildingName String
+  buildingType String // 상가 | 오피스 | 다세대 | 기타
+  region       String // 시·군·구
+  website      String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+/// 전문가 프로필 — 행이 없으면 지원 시 입력 유도 (B-06)
+model VendorProfile {
+  userId       String  @id
+  mainCategory String
+  years        Int
+  hourlyRate   Int
+  portfolioUrl String?
+
+  user   User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  skills VendorSkill[]
+}
+
+// ───────── 전문분야 (M:N) ─────────
+
+/// 기본 6종: 전기 / 설비·배관 / 방수·도장 / 인테리어·목공 / 소방·안전 / 공조·환기 (D-07)
+model Skill {
+  id       String  @id @default(cuid())
+  name     String  @unique
+  isCustom Boolean @default(false)
+
+  vendors  VendorSkill[]
+  projects ProjectSkill[]
+}
+
+model VendorSkill {
+  vendorId String
+  skillId  String
+
+  vendor VendorProfile @relation(fields: [vendorId], references: [userId], onDelete: Cascade)
+  skill  Skill         @relation(fields: [skillId], references: [id], onDelete: Cascade)
+
+  @@id([vendorId, skillId])
+}
+
+model ProjectSkill {
+  projectId String
+  skillId   String
+
+  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  skill   Skill   @relation(fields: [skillId], references: [id], onDelete: Cascade)
+
+  @@id([projectId, skillId])
+}
+
+// ───────── 프로젝트 · 지원 ─────────
+
+enum RecruitStatus {
+  scheduled // 모집 예정
+  open // 모집 중
+  closed // 모집 마감
+}
+
+enum DealStatus {
+  awaiting_contract // 계약 대기 (금액 합의·서명)
+  awaiting_payment // 결제 대기 (D-04)
+  in_progress // 작업 중
+  completed // 완료
+  cancelled // 취소
+}
+
+/// 외부 목록은 recruitStatus 만 노출. dealStatus 는 내부 화면 전용 (B-17, D-03)
+model Project {
+  id             String        @id @default(cuid())
+  clientId       String
+  title          String
+  description    String
+  category       String
+  recruitStartAt DateTime?
+  deadlineAt     DateTime
+  budget         Int?
+  recruitStatus  RecruitStatus @default(scheduled)
+  dealStatus     DealStatus?
+  deletedAt      DateTime? // 소프트 딜리트 (B-09)
+  createdAt      DateTime      @default(now())
+
+  client       User            @relation("ClientProjects", fields: [clientId], references: [id])
+  skills       ProjectSkill[]
+  applications Application[]
+  analyses     ScopeAnalysis[]
+  contract     Contract?
+  reviews      Review[]
+  bookmarks    Bookmark[]
+
+  @@index([recruitStatus, deadlineAt])
+  @@index([category])
+  @@index([clientId])
+}
+
+enum ApplicationStatus {
+  pending // 검토중
+  accepted // 수락
+  rejected // 거절 (직접·자동·일괄 모두 동일 상태)
+}
+
+/// 중복 지원 방지 (B-18). 수락·거절 후에도 행은 남아 내 지원 현황에 노출 (B-22)
+model Application {
+  id             String            @id @default(cuid())
+  projectId      String
+  freelancerId   String
+  coverLetter    String
+  proposedAmount Int
+  proposedDays   Int
+  status         ApplicationStatus @default(pending)
+  createdAt      DateTime          @default(now())
+
+  project    Project   @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  freelancer User      @relation(fields: [freelancerId], references: [id])
+  contract   Contract?
+
+  @@unique([projectId, freelancerId])
+  @@index([freelancerId])
+}
+
+// ───────── AI 범위 분해 (차별화 축) ─────────
+
+model ScopeAnalysis {
+  id            String   @id @default(cuid())
+  projectId     String
+  totalEstimate Int
+  model         String // 사용한 LLM (폴백이면 "rule")
+  createdAt     DateTime @default(now())
+
+  project Project     @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  items   ScopeItem[]
+
+  @@index([projectId])
+}
+
+/// 이 행 하나가 계약 범위 조항이자 마일스톤이자 부분 정산 단위가 된다 (D-02).
+/// JSON 한 칸에 담으면 리포트 출력 외에는 못 쓰기 때문에 행으로 쪼갠다.
+model ScopeItem {
+  id          String @id @default(cuid())
+  analysisId  String
+  sortOrder   Int
+  name        String // 예: 방수 재시공
+  description String
+  estimate    Int
+  rationale   String // 산정 근거 (A-01 필수)
+
+  analysis  ScopeAnalysis @relation(fields: [analysisId], references: [id], onDelete: Cascade)
+  milestone Milestone?
+
+  @@index([analysisId])
+}
+
+// ───────── 계약 · 결제 · 정산 ─────────
+
+/// 양측 서명이 모두 차면 체결. 범위는 스냅샷으로 고정해 사후 변경 불가 (A-05, A-06)
+model Contract {
+  id                 String    @id @default(cuid())
+  projectId          String    @unique
+  applicationId      String    @unique
+  agreedAmount       Int
+  scopeSnapshot      Json // 체결 시점의 ScopeItem 사본
+  clientSignedAt     DateTime?
+  freelancerSignedAt DateTime?
+  createdAt          DateTime  @default(now())
+
+  project     Project     @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  application Application @relation(fields: [applicationId], references: [id])
+  milestones  Milestone[]
+  payments    Payment[]
+}
+
+enum MilestoneStatus {
+  todo
+  in_progress
+  submitted // 납품 요청
+  approved // 완료 승인 → 정산
+}
+
+/// 의뢰인이 단계를 승인할 때마다 그만큼 정산 (C-01)
+model Milestone {
+  id          String          @id @default(cuid())
+  contractId  String
+  scopeItemId String?         @unique
+  sortOrder   Int
+  title       String
+  amount      Int
+  status      MilestoneStatus @default(todo)
+  fee         Int? // 수수료 10%
+  net         Int? // 실지급액
+  approvedAt  DateTime?
+
+  contract  Contract   @relation(fields: [contractId], references: [id], onDelete: Cascade)
+  scopeItem ScopeItem? @relation(fields: [scopeItemId], references: [id])
+
+  @@index([contractId])
+}
+
+enum PaymentStatus {
+  pending
+  paid
+  partially_settled
+  settled
+  refunded
+}
+
+/// PG sandbox 전용. 콜백에서 금액을 서버 측 재검증한다 (A-07)
+model Payment {
+  id           String        @id @default(cuid())
+  contractId   String
+  pgOrderId    String        @unique
+  pgPaymentKey String?
+  amount       Int
+  status       PaymentStatus @default(pending)
+  paidAt       DateTime?
+
+  contract Contract @relation(fields: [contractId], references: [id], onDelete: Cascade)
+
+  @@index([contractId])
+}
+
+// ───────── 리뷰 · 알림 · 북마크 ─────────
+
+enum ReviewDirection {
+  client_to_freelancer
+  freelancer_to_client
+}
+
+/// 프로젝트당 방향별 1회, 수정 불가 (A-12)
+model Review {
+  id        String          @id @default(cuid())
+  projectId String
+  authorId  String
+  direction ReviewDirection
+  rating    Int // 1-5
+  comment   String?
+  tags      String[] // 고정 태그 세트 (D-08)
+  createdAt DateTime        @default(now())
+
+  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  author  User    @relation(fields: [authorId], references: [id])
+
+  @@unique([projectId, direction])
+  @@index([authorId])
+}
+
+model Notification {
+  id        String    @id @default(cuid())
+  userId    String
+  type      String
+  title     String
+  body      String?
+  link      String // 클릭 시 이동 경로 (B-25)
+  readAt    DateTime?
+  createdAt DateTime  @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, readAt])
+}
+
+model Bookmark {
+  userId    String
+  projectId String
+  createdAt DateTime @default(now())
+
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@id([userId, projectId])
+}
