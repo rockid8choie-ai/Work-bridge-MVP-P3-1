@@ -1,5 +1,11 @@
 # Work bridge MVP [P(3-1)]
 
+**🔗 배포: https://workbridge-gray.vercel.app**
+
+데모 계정 (비밀번호 `demo1234`)
+- `owner@workbridge.test` — 건물주
+- `pro@workbridge.test` — 전문가
+
 **건물 유지보수 외주 매칭 플랫폼** — 건물주(의뢰인)와 유지보수 전문가(프리랜서)를 연결한다.
 
 > 가격을 먼저 합의하지 않습니다. **범위**를 먼저 합의합니다.

@@ -75,23 +75,46 @@ async function main() {
     create: { vendorId: vendor.id, skillId: waterproof.id },
   });
 
-  const existing = await prisma.project.findFirst({ where: { clientId: client.id } });
-  if (!existing) {
-    const project = await prisma.project.create({
+  const DEMO_PROJECTS = [
+    {
+      title: "3층 화장실 천장 누수 보수",
+      description:
+        "3층 공용 화장실 천장에서 물이 새고 있습니다. 아래층 사무실 천장까지 얼룩이 번졌습니다. " +
+        "배관 쪽 문제로 보이는데 정확한 원인은 확인이 필요합니다. 임차인이 영업 중이라 주말 작업을 선호합니다.",
+      category: "누수·방수",
+      budget: 3_200_000,
+      days: 14,
+    },
+    {
+      title: "옥상 우레탄 방수 전면 재시공",
+      description:
+        "옥상 우레탄 방수층이 전체적으로 들떠 있고 균열이 보입니다. 장마철마다 최상층 사무실로 " +
+        "물이 새서 임차인 항의가 반복됩니다. 부분 보수로는 안 될 것 같아 전면 재시공을 생각하고 있습니다. " +
+        "면적은 약 180㎡이고 옥상 출입구와 배수구 주변이 특히 심합니다.",
+      category: "누수·방수",
+      budget: 5_000_000,
+      days: 30,
+    },
+  ];
+
+  for (const p of DEMO_PROJECTS) {
+    const exists = await prisma.project.findFirst({
+      where: { clientId: client.id, title: p.title },
+    });
+    if (exists) continue;
+    await prisma.project.create({
       data: {
         clientId: client.id,
-        title: "3층 화장실 천장 누수 보수",
-        description:
-          "3층 공용 화장실 천장에서 물이 새고 있습니다. 아래층 사무실 천장까지 얼룩이 번졌습니다. " +
-          "배관 쪽 문제로 보이는데 정확한 원인은 확인이 필요합니다. 임차인이 영업 중이라 주말 작업을 선호합니다.",
-        category: "누수·방수",
+        title: p.title,
+        description: p.description,
+        category: p.category,
         recruitStatus: "open",
-        deadlineAt: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000),
-        budget: 3_200_000,
+        deadlineAt: new Date(Date.now() + p.days * 24 * 60 * 60 * 1000),
+        budget: p.budget,
         skills: { create: [{ skillId: waterproof.id }] },
       },
     });
-    console.log(`데모 프로젝트 생성: ${project.title}`);
+    console.log(`데모 프로젝트 생성: ${p.title}`);
   }
 
   console.log("데모 계정: owner@workbridge.test / pro@workbridge.test (비밀번호 demo1234)");
