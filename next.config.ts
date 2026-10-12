@@ -4,6 +4,9 @@ const nextConfig: NextConfig = {
   // cacheComponents 는 끈다(따라서 partialPrefetching 도 함께 뺀다).
   // 라우트 핸들러의 runtime 설정과 충돌하는데, bcrypt·Prisma 때문에 Node 런타임이
   // 필요하고 2주 MVP 범위에서 캐시 최적화는 과하다.
+  // 빌드 워커를 제한한다. 기본값(코어 수만큼)으로 돌리면 개발 머신에서
+  // 워커가 11개까지 떠서 JS heap out of memory 로 죽는다.
+  experimental: { cpus: 2 },
   turbopack: {
     rules: {
       "*.css": {
