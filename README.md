@@ -47,6 +47,9 @@ AI가 프로젝트 설명을 **단위 공정으로 분해**하고, 그 결과를
 |---|---|
 | [요구사항 분해](docs/01-요구사항-분해.md) | 제품 정의 · 수용 기준 체크리스트 · 자율 결정 기록 · 2주 일정 |
 | [ERD](docs/02-ERD.md) | 데이터 모델 · 설계 의도 · 상태 전이 · 부수 효과 |
+| [시장조사](docs/03-시장조사.md) | 왜 이 사업인가 · 경쟁 지도 · 예상 반박 |
+| [개발일지](docs/04-개발일지.md) | 일자별 판단 근거 · 막힌 것 · 검증 |
+| [PROGRESS](PROGRESS.md) | **현재 진행 상태 · 다음 할 일 · 새 머신 세팅** — 새 세션은 여기부터 |
 
 ## 기술 스택
 
@@ -72,8 +75,8 @@ AI가 프로젝트 설명을 **단위 공정으로 분해**하고, 그 결과를
 
 ```bash
 npm install
-cp .env.example .env    # 값 채우기
-npx prisma migrate dev
+npx vercel link && npx vercel env pull .env   # 비밀값은 Vercel 에 있음 (또는 .env.example 복사 후 직접 채우기)
+npx prisma generate
 npm run dev
 ```
 
