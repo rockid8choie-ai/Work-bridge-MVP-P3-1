@@ -24,7 +24,6 @@ ENV PORT=3000
 # standalone 산출물 + 정적 파일
 COPY --from=build /app/.next/standalone ./
 COPY --from=build /app/.next/static ./.next/static
-COPY --from=build /app/public ./public
 # 마이그레이션·시드를 컨테이너 안에서 돌리기 위한 것들
 COPY --from=build /app/prisma ./prisma
 COPY --from=build /app/node_modules/prisma ./node_modules/prisma
