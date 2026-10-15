@@ -1,0 +1,43 @@
+# 로컬 개발용. DB 만 띄우려면:  docker compose up -d db
+# 앱까지 컨테이너로:            docker compose up --build
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: workbridge-db
+    environment:
+      POSTGRES_USER: workbridge
+      POSTGRES_PASSWORD: workbridge
+      POSTGRES_DB: workbridge
+    ports:
+      - "5433:5432"   # 호스트 5432 는 Homebrew postgresql@18 이 쓰고 있어 5433 으로
+    volumes:
+      - workbridge-pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U workbridge -d workbridge"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  web:
+    build: .
+    container_name: workbridge-web
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgresql://workbridge:workbridge@db:5432/workbridge
+      DIRECT_URL: postgresql://workbridge:workbridge@db:5432/workbridge
+      JWT_ACCESS_SECRET: ${JWT_ACCESS_SECRET:-dev-access-secret-change-me}
+      JWT_REFRESH_SECRET: ${JWT_REFRESH_SECRET:-dev-refresh-secret-change-me}
+      ACCESS_TOKEN_TTL: 15m
+      REFRESH_TOKEN_TTL: 14d
+      PLATFORM_FEE_RATE: "0.10"
+      OAUTH_REDIRECT_BASE: http://localhost:3000
+      ALLOW_DEMO: "1"
+    ports:
+      - "3000:3000"
+    # 컨테이너가 뜰 때 마이그레이션 + 시드 후 서버 시작
+    command: sh -c "npx prisma migrate deploy && npx tsx prisma/seed.ts && node server.js"
+
+volumes:
+  workbridge-pgdata:

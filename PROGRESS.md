@@ -1,7 +1,7 @@
 # PROGRESS — 작업 인수인계
 
 > 새 세션·새 머신에서는 **이 파일부터** 읽는다. 매 작업 단위마다 갱신하고 커밋·푸시한다.
-> 최종 갱신: 2026-10-13 저녁 (Mac 이전 완료 · Day 2 는 문서·설계로 소진, 구현은 10/14부터)
+> 최종 갱신: 2026-10-15 오후 (배포 느림 원인 = 리전 · Vercel 배포 BLOCKED 미해결 · 로컬 Docker DB 전환)
 
 ---
 
@@ -33,7 +33,12 @@ npx prisma generate
 npm run dev                # http://localhost:3000
 ```
 
-- DB 는 **Neon 클라우드**다. 로컬 DB 를 띄울 필요 없고, Windows 와 같은 DB 를 그대로 본다.
+- **로컬 개발 DB 는 Docker Postgres (10/15 전환).** `npm run db:up` → `localhost:5433`. `.env.local` 이 이 DB 를 가리키고, `.env`(vercel env pull) 는 배포용 Neon 값이다. Next 는 `.env.local` 을 우선한다.
+  - 호스트 5432 는 Homebrew `postgresql@18` 이 이미 쓰고 있어 **5433** 으로 매핑했다.
+  - Docker 엔진은 **colima** (`colima start`). Docker Desktop 은 설치에 관리자 비밀번호가 필요해 보류. 재부팅 후엔 `colima start` 먼저.
+  - 초기화: `npm run db:up && npx prisma migrate deploy && ALLOW_DEMO=1 npm run db:seed` (DATABASE_URL 은 .env.local 값 사용). 전부 지우고 다시: `npm run db:reset`.
+  - Neon 으로 다시 보고 싶으면 `.env.local` 의 DATABASE_URL/DIRECT_URL 두 줄만 지운다.
+- 앱까지 컨테이너로: `docker compose up --build` (Dockerfile = Next standalone, 기동 시 migrate deploy + seed).
 - `.env` 에 `OAUTH_REDIRECT_BASE` 가 Vercel 에 없다. `.env.example` 참고해서 `http://localhost:3000` 한 줄 추가.
 - Node 24 / npm 11 에서 개발했다. Next 16.4.0, Prisma 6.19.
 - `next.config.ts` 의 `experimental.cpus: 2` 는 Windows 메모리 부족 때문에 둔 것. Vercel 에서는 자동 해제되고, Mac 에서 빌드가 느리면 그 줄을 지워도 된다.
@@ -104,6 +109,7 @@ Neon 연결 · 초기 마이그레이션(`20261012074602_init`) · 시드 · Ver
 | 항목 | 상태 |
 |---|---|
 | ~~과제 원문(RFP) 파일이 어디에도 없다~~ | **해결(10/13)** — 사용자가 5편 재전달, `docs/rfp/` 에 커밋. 대조 결과 B-31~B-33 추가 |
+| **Vercel 배포가 BLOCKED (10/15)** | 배포 사이트가 느린 원인: 함수 리전 iad1(미국) ↔ Neon 싱가포르. `vercel.json` regions sin1 + 프로젝트 설정 sin1 로 바꿨고 **GitHub 연동도 10/15 에 연결**(이전엔 CLI 배포만이라 push 해도 재배포 안 됐음). 그런데 새 배포 2건이 전부 `BLOCKED`. API 에 사유 없음 → **대시보드에서 사유 확인 필요** (vercel.com → workbridge → Deployments). Hobby 플랜·결제 상태는 정상 |
 | GitHub Projects 칸반 보드 | `gh` 토큰에 `project` 스코프 없음. `gh auth refresh -s project` 후 생성 |
 | 팀명 | 제출 파일명 규칙 `[팀명]_[산출물명]_[버전]` 이라 1인이라도 팀명 필요 |
 | OAuth 키 | Google · Kakao 클라이언트 ID/Secret 미발급 (#2 착수 전) |
