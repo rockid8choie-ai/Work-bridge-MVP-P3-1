@@ -1,5 +1,5 @@
 # 로컬 개발용. DB 만 띄우려면:  docker compose up -d db
-# 앱까지 컨테이너로:            docker compose up --build
+# 앱까지 컨테이너로:            docker compose up --build   (포트 바꾸려면 WEB_PORT=3100)
 services:
   db:
     image: postgres:16-alpine
@@ -18,12 +18,26 @@ services:
       timeout: 3s
       retries: 10
 
+  # 마이그레이션 + 시드 (1회성). 의존성 전체가 있는 build 단계 이미지를 쓴다.
+  migrate:
+    build:
+      context: .
+      target: build
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgresql://workbridge:workbridge@db:5432/workbridge
+      DIRECT_URL: postgresql://workbridge:workbridge@db:5432/workbridge
+      ALLOW_DEMO: "1"
+    command: sh -c "npx prisma migrate deploy && npx tsx prisma/seed.ts"
+
   web:
     build: .
     container_name: workbridge-web
     depends_on:
-      db:
-        condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
     environment:
       DATABASE_URL: postgresql://workbridge:workbridge@db:5432/workbridge
       DIRECT_URL: postgresql://workbridge:workbridge@db:5432/workbridge
@@ -33,11 +47,8 @@ services:
       REFRESH_TOKEN_TTL: 14d
       PLATFORM_FEE_RATE: "0.10"
       OAUTH_REDIRECT_BASE: http://localhost:3000
-      ALLOW_DEMO: "1"
     ports:
-      - "3000:3000"
-    # 컨테이너가 뜰 때 마이그레이션 + 시드 후 서버 시작
-    command: sh -c "npx prisma migrate deploy && npx tsx prisma/seed.ts && node server.js"
+      - "${WEB_PORT:-3000}:3000"
 
 volumes:
   workbridge-pgdata:

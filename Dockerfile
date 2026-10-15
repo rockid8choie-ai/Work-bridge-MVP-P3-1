@@ -1,5 +1,6 @@
 # syntax=docker/dockerfile:1
 # Next.js 16 standalone 빌드. 로컬 compose 용 — 배포는 Vercel.
+# 마이그레이션·시드는 build 단계(의존성 전체 보유)를 target 으로 쓰는 compose 의 migrate 서비스가 돌린다.
 
 FROM node:24-alpine AS deps
 WORKDIR /app
@@ -24,13 +25,8 @@ ENV PORT=3000
 # standalone 산출물 + 정적 파일
 COPY --from=build /app/.next/standalone ./
 COPY --from=build /app/.next/static ./.next/static
-# 마이그레이션·시드를 컨테이너 안에서 돌리기 위한 것들
-COPY --from=build /app/prisma ./prisma
-COPY --from=build /app/node_modules/prisma ./node_modules/prisma
-COPY --from=build /app/node_modules/@prisma ./node_modules/@prisma
+# Prisma 엔진 (standalone 트레이싱이 놓치는 경우 대비)
 COPY --from=build /app/node_modules/.prisma ./node_modules/.prisma
-COPY --from=build /app/node_modules/.bin ./node_modules/.bin
-COPY --from=build /app/node_modules/tsx ./node_modules/tsx
-COPY --from=build /app/node_modules/bcryptjs ./node_modules/bcryptjs
+COPY --from=build /app/node_modules/@prisma ./node_modules/@prisma
 EXPOSE 3000
 CMD ["node", "server.js"]
