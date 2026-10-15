@@ -1,7 +1,7 @@
 # PROGRESS — 작업 인수인계
 
 > 새 세션·새 머신에서는 **이 파일부터** 읽는다. 매 작업 단위마다 갱신하고 커밋·푸시한다.
-> 최종 갱신: 2026-10-15 오후 (배포 느림 원인 = 리전 · Vercel 배포 BLOCKED 미해결 · 로컬 Docker DB 전환)
+> 최종 갱신: 2026-10-15 저녁 (배포 느림 해결 · BLOCKED 원인 = 커밋 작성자 · Docker compose 완성 · 디자인 가이드 08)
 
 ---
 
@@ -9,7 +9,8 @@
 
 Day 1(10/12) 구현 완료, Day 2(10/13)는 **Mac 이전 + RFP 원문 확보 + 기획서 원고 + AI 공정 분해 설계**로 썼다. 코드 변경 없음. 기본 필수 33항목 중 **12항목 구현·배포 검증 끝**. **10/14부터 지원 관리(트랜잭션) 구현 시작.**
 
-- 배포: https://workbridge-gray.vercel.app (Vercel 프로젝트 `workbridge`, 팀 `rockid8choie-3144s-projects`)
+- 배포: https://workbridge-gray.vercel.app (Vercel 프로젝트 `workbridge`, 팀 `rockid8choie-3144s-projects`). **이 주소만 공개용.** `workbridge-rockid8choie-3144s-projects.vercel.app` 쪽은 Vercel 보호가 걸려 로그인으로 튕긴다.
+- 배포 속도(10/15 저녁): 홈·로그인·목록 0.05~0.4초. 함수 리전 sin1 ↔ Neon 싱가포르. 첫 요청(콜드 스타트)만 1~1.5초.
 - 리포: https://github.com/rockid8choie-ai/Work-bridge-MVP-P3-1 (**private**, 제출 시 public 전환)
 - 데모 계정: `owner@workbridge.test` / `pro@workbridge.test` (비밀번호 `demo1234`)
 - **Mac 로컬: `~/Projects/workbridge`** — vercel link · env pull · prisma generate · `npm run dev` 까지 확인 끝(10/13). Windows 쪽은 더 이상 안 쓴다.
@@ -38,7 +39,8 @@ npm run dev                # http://localhost:3000
   - Docker 엔진은 **colima** (`colima start`). Docker Desktop 은 설치에 관리자 비밀번호가 필요해 보류. 재부팅 후엔 `colima start` 먼저.
   - 초기화: `npm run db:up && npx prisma migrate deploy && ALLOW_DEMO=1 npm run db:seed` (DATABASE_URL 은 .env.local 값 사용). 전부 지우고 다시: `npm run db:reset`.
   - Neon 으로 다시 보고 싶으면 `.env.local` 의 DATABASE_URL/DIRECT_URL 두 줄만 지운다.
-- 앱까지 컨테이너로: `docker compose up --build` (Dockerfile = Next standalone, 기동 시 migrate deploy + seed).
+- 앱까지 컨테이너로: `docker compose up --build` — db → migrate(마이그레이션 + 시드, build 단계 이미지) → web(Next standalone) 순서로 뜬다. 포트 바꾸려면 `WEB_PORT=3100 docker compose up -d web`.
+- **git 작성자는 반드시 `rockid8choie-ai <rockid8choie@gmail.com>`** (`git config --global user.name/user.email`). 다른 이름으로 커밋하면 Vercel 이 그 커밋 배포를 `BLOCKED` 로 막는다(아래 4장).
 - `.env` 에 `OAUTH_REDIRECT_BASE` 가 Vercel 에 없다. `.env.example` 참고해서 `http://localhost:3000` 한 줄 추가.
 - Node 24 / npm 11 에서 개발했다. Next 16.4.0, Prisma 6.19.
 - `next.config.ts` 의 `experimental.cpus: 2` 는 Windows 메모리 부족 때문에 둔 것. Vercel 에서는 자동 해제되고, Mac 에서 빌드가 느리면 그 줄을 지워도 된다.
@@ -59,6 +61,9 @@ npm run dev                # http://localhost:3000
 | `04-개발일지.md` | Day 1·2 일지(판단 근거 · 막힌 것 · 검증표) |
 | `05-프로젝트-개요.md` | **기획서·발표 도입부 원고** — 수행 목적 · 한 줄 요약 · 상세 개요(거래 흐름 11단계) · 배경 및 문제 정의. 10/13 |
 | `06-AI-공정분해-설계.md` | **공정표 생성 방식** — 공정 사전 · 단가 범위 · 구조화 JSON+zod · 폴백 · 전문가 수정 · ScopeChange · 심사 예상 질문. 10/13 |
+| `07-시장조사-심화.md` | 심화 시장조사 (Windows 쪽에서 10/15 추가) |
+| `08-디자인-가이드.md` | **2026 미국 매칭 플랫폼 매출 순위 기반 디자인 토큰·화면별 적용안** — 색·둥글기·CTA 규칙, 적용 순서 5단계. 10/15. 코드 적용은 스프린트 1 뒤 |
+| `03-시장조사.md` 부록 B | 빌딩왕 보도자료 대조 · 보완 방안 (10/15) |
 
 ### 코드
 | AC | 내용 | 상태 |
@@ -109,7 +114,7 @@ Neon 연결 · 초기 마이그레이션(`20261012074602_init`) · 시드 · Ver
 | 항목 | 상태 |
 |---|---|
 | ~~과제 원문(RFP) 파일이 어디에도 없다~~ | **해결(10/13)** — 사용자가 5편 재전달, `docs/rfp/` 에 커밋. 대조 결과 B-31~B-33 추가 |
-| **Vercel 배포가 BLOCKED (10/15)** | 배포 사이트가 느린 원인: 함수 리전 iad1(미국) ↔ Neon 싱가포르. `vercel.json` regions sin1 + 프로젝트 설정 sin1 로 바꿨고 **GitHub 연동도 10/15 에 연결**(이전엔 CLI 배포만이라 push 해도 재배포 안 됐음). 그런데 새 배포 2건이 전부 `BLOCKED`. API 에 사유 없음 → **대시보드에서 사유 확인 필요** (vercel.com → workbridge → Deployments). Hobby 플랜·결제 상태는 정상 |
+| ~~Vercel 배포가 BLOCKED (10/15)~~ | **해결(10/15 저녁)**. 두 가지가 겹쳐 있었다. ① 느림: 함수 리전 iad1 ↔ Neon 싱가포르 → `vercel.json` regions sin1 + 프로젝트 설정 sin1, GitHub 연동 연결(이전엔 CLI 배포만). ② BLOCKED: 사유는 `COMMIT_AUTHOR_REQUIRED` — Mac 기본 git 작성자(`apple@…local`)가 GitHub 계정과 안 맞아 Vercel 이 빌드 거부. 작성자를 `rockid8choie-ai` 로 고정했다. Windows 커밋 `8aa7fde` 는 작성자가 맞아 정상 배포됐고 **프로덕션은 이미 sin1**. 남은 것: Vercel 대시보드 → Settings → Deployment Protection 이 "모든 배포(커스텀 도메인 제외)" 로 되어 있어 팀 이름 주소가 로그인으로 튕김. 공개 주소는 `workbridge-gray` 라 실사용엔 지장 없음. 원하면 Standard 로 내리기(API 변경은 권한 승인 필요해 미실행) |
 | GitHub Projects 칸반 보드 | `gh` 토큰에 `project` 스코프 없음. `gh auth refresh -s project` 후 생성 |
 | 팀명 | 제출 파일명 규칙 `[팀명]_[산출물명]_[버전]` 이라 1인이라도 팀명 필요 |
 | OAuth 키 | Google · Kakao 클라이언트 ID/Secret 미발급 (#2 착수 전) |
