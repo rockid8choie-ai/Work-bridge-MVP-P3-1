@@ -52,6 +52,7 @@ export async function PATCH(request: Request, { params }: Ctx) {
       select: {
         budget: true,
         deadlineAt: true,
+        recruitStatus: true,
         dealStatus: true,
         _count: { select: { applications: true } },
       },
@@ -99,8 +100,11 @@ export async function PATCH(request: Request, { params }: Ctx) {
           ...(body.category !== undefined && { category: body.category }),
           ...(startAt !== undefined && {
             recruitStartAt: startAt,
-            // 시작일을 앞당기면 즉시 모집 중, 미래로 미루면 모집 예정 (B-15)
-            recruitStatus: !startAt || startAt <= now ? "open" : "scheduled",
+            // 시작일을 앞당기면 즉시 모집 중, 미래로 미루면 모집 예정 (B-15).
+            // 이미 마감된 프로젝트는 수정으로 되살리지 않는다 — 마감 때 지원자를 일괄 거절했기 때문.
+            ...(project.recruitStatus !== "closed" && {
+              recruitStatus: !startAt || startAt <= now ? "open" : "scheduled",
+            }),
           }),
           ...(body.deadlineAt !== undefined && { deadlineAt: new Date(body.deadlineAt) }),
           ...(body.budget !== undefined && { budget: body.budget ?? null }),

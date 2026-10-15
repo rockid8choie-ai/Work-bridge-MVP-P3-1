@@ -94,19 +94,27 @@ export async function acceptApplication(applicationId: string, clientId: string)
     if (app.status !== "pending") throw new ApiError(409, "ALREADY_DECIDED", "이미 처리된 지원이에요");
     if (app.project.dealStatus) throw new ApiError(409, "ALREADY_IN_DEAL", "이미 다른 전문가와 거래가 진행 중이에요");
 
+    // 같은 프로젝트에 수락 요청이 동시에 두 번 들어와도 한 번만 성공해야 한다.
+    // 위에서 읽은 상태를 믿지 않고, 갱신 조건에 "아직 거래 전·아직 대기중"을 다시 건다 (조건부 갱신).
+    const claimed = await tx.project.updateMany({
+      where: { id: app.projectId, dealStatus: null },
+      data: { recruitStatus: "closed", dealStatus: "awaiting_contract" },
+    });
+    if (claimed.count === 0) throw new ApiError(409, "ALREADY_IN_DEAL", "이미 다른 전문가와 거래가 진행 중이에요");
+
+    const accepted = await tx.application.updateMany({
+      where: { id: app.id, status: "pending" },
+      data: { status: "accepted" },
+    });
+    if (accepted.count === 0) throw new ApiError(409, "ALREADY_DECIDED", "이미 처리된 지원이에요");
+
     const others = await tx.application.findMany({
       where: { projectId: app.projectId, status: "pending", id: { not: app.id } },
       select: { id: true, freelancerId: true },
     });
-
-    await tx.application.update({ where: { id: app.id }, data: { status: "accepted" } });
     await tx.application.updateMany({
       where: { id: { in: others.map((o) => o.id) } },
       data: { status: "rejected" },
-    });
-    await tx.project.update({
-      where: { id: app.projectId },
-      data: { recruitStatus: "closed", dealStatus: "awaiting_contract" },
     });
 
     await notifyMany(tx, [
