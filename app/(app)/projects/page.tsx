@@ -1,118 +1,154 @@
 import Link from "next/link";
 import { prisma } from "@/lib/server/db";
 import { getCurrentUser } from "@/lib/server/auth";
-import { PAGE_SIZE } from "@/lib/server/validators.project";
+import { syncRecruitStatuses } from "@/lib/server/projects";
+import {
+  buildProjectOrderBy,
+  buildProjectWhere,
+  pickQueryParams,
+  projectCardSelect,
+} from "@/lib/server/projects.query";
+import { PAGE_SIZE, projectQuerySchema } from "@/lib/server/validators.project";
+import { PROJECT_CATEGORIES } from "@/lib/shared/labels";
+import ProjectCard from "@/components/ProjectCard";
 
-const STATUS_LABEL = {
-  scheduled: "모집 예정",
-  open: "모집 중",
-  closed: "모집 마감",
-} as const;
+const SORTS = [
+  { value: "latest", label: "최신순" },
+  { value: "deadline", label: "마감임박순" },
+  { value: "budget", label: "예산 높은순" },
+] as const;
 
-const STATUS_STYLE = {
-  scheduled: "bg-amber-50 text-amber-700",
-  open: "bg-blue-50 text-blue-700",
-  closed: "bg-slate-100 text-slate-500",
-} as const;
+const STATUSES = [
+  { value: "", label: "전체 상태" },
+  { value: "scheduled", label: "모집 예정" },
+  { value: "open", label: "모집 중" },
+  { value: "closed", label: "모집 마감" },
+] as const;
 
+/**
+ * 프로젝트 탐색 — 검색 · 필터 · 정렬 · 페이지네이션 (B-11 ~ B-14).
+ * 검색 조건은 전부 쿼리스트링에 두어 새로고침·공유·뒤로가기에 안전하다.
+ * API 와 같은 where 빌더를 써서 화면과 API 가 같은 결과를 낸다.
+ */
 export default async function ProjectsPage({
   searchParams,
 }: {
-  searchParams: Promise<{ page?: string }>;
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
   const user = await getCurrentUser();
-  const { page: pageParam } = await searchParams;
-  const page = Math.max(1, Number(pageParam) || 1);
+  const raw = pickQueryParams(await searchParams);
+  const parsed = projectQuerySchema.safeParse(raw);
+  const query = parsed.success ? parsed.data : projectQuerySchema.parse({});
 
-  const [total, projects] = await Promise.all([
-    prisma.project.count({ where: { deletedAt: null } }),
+  await syncRecruitStatuses();
+
+  const [skills, total, rows] = await Promise.all([
+    prisma.skill.findMany({ where: { isCustom: false }, orderBy: { name: "asc" }, select: { name: true } }),
+    prisma.project.count({ where: buildProjectWhere(query) }),
     prisma.project.findMany({
-      where: { deletedAt: null },
-      orderBy: { createdAt: "desc" },
-      skip: (page - 1) * PAGE_SIZE,
+      where: buildProjectWhere(query),
+      orderBy: buildProjectOrderBy(query.sort),
+      skip: (query.page - 1) * PAGE_SIZE,
       take: PAGE_SIZE,
-      select: {
-        id: true,
-        title: true,
-        category: true,
-        budget: true,
-        deadlineAt: true,
-        recruitStatus: true,
-        skills: { select: { skill: { select: { name: true } } } },
-        _count: { select: { applications: true } },
-        client: { select: { name: true, clientProfile: { select: { region: true } } } },
-      },
+      select: projectCardSelect,
     }),
   ]);
 
   const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
+  const pageHref = (n: number) => {
+    const sp = new URLSearchParams(raw);
+    sp.set("page", String(n));
+    return `/projects?${sp.toString()}`;
+  };
+  const hasFilter = Boolean(query.q || query.category || query.skill || query.status || query.budgetMax);
 
   return (
     <div>
       <div className="flex items-end justify-between">
         <div>
           <h1 className="text-xl font-extrabold tracking-tight text-slate-900">프로젝트</h1>
-          <p className="mt-1 text-sm text-slate-500">전체 {total}건</p>
+          <p className="mt-1 text-sm text-slate-500">
+            {hasFilter ? `조건에 맞는 공사 ${total}건` : `전체 ${total}건`}
+          </p>
         </div>
         {user?.role === "client" && (
-          <Link
-            href="/projects/new"
-            className="rounded-xl bg-blue-600 px-4 py-2.5 text-sm font-bold text-white"
-          >
+          <Link href="/projects/new" className="rounded-xl bg-blue-600 px-4 py-2.5 text-sm font-bold text-white">
             공사 등록
           </Link>
         )}
       </div>
 
-      <div className="mt-6 space-y-3">
-        {projects.length === 0 && (
+      <form method="get" action="/projects" className="mt-5 rounded-2xl bg-slate-50 p-4">
+        <div className="flex gap-2">
+          <input
+            name="q"
+            defaultValue={query.q ?? ""}
+            placeholder="제목이나 공사 내용으로 검색"
+            className="min-w-0 flex-1 rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm outline-none focus:border-blue-600"
+          />
+          <button type="submit" className="rounded-xl bg-slate-900 px-4 py-2.5 text-sm font-bold text-white">
+            검색
+          </button>
+        </div>
+        <div className="mt-2.5 grid grid-cols-2 gap-2 sm:grid-cols-5">
+          <select name="category" defaultValue={query.category ?? ""} className="rounded-xl border border-slate-200 bg-white px-2.5 py-2 text-[13px]">
+            <option value="">전체 카테고리</option>
+            {PROJECT_CATEGORIES.map((c) => (
+              <option key={c} value={c}>{c}</option>
+            ))}
+          </select>
+          <select name="skill" defaultValue={query.skill ?? ""} className="rounded-xl border border-slate-200 bg-white px-2.5 py-2 text-[13px]">
+            <option value="">전체 전문분야</option>
+            {skills.map((s) => (
+              <option key={s.name} value={s.name}>{s.name}</option>
+            ))}
+          </select>
+          <select name="status" defaultValue={query.status ?? ""} className="rounded-xl border border-slate-200 bg-white px-2.5 py-2 text-[13px]">
+            {STATUSES.map((s) => (
+              <option key={s.value} value={s.value}>{s.label}</option>
+            ))}
+          </select>
+          <select name="budgetMax" defaultValue={query.budgetMax ? String(query.budgetMax) : ""} className="rounded-xl border border-slate-200 bg-white px-2.5 py-2 text-[13px]">
+            <option value="">예산 전체</option>
+            <option value="1000000">100만원 이하</option>
+            <option value="3000000">300만원 이하</option>
+            <option value="5000000">500만원 이하</option>
+            <option value="10000000">1,000만원 이하</option>
+          </select>
+          <select name="sort" defaultValue={query.sort} className="rounded-xl border border-slate-200 bg-white px-2.5 py-2 text-[13px]">
+            {SORTS.map((s) => (
+              <option key={s.value} value={s.value}>{s.label}</option>
+            ))}
+          </select>
+        </div>
+        {hasFilter && (
+          <Link href="/projects" className="mt-2.5 inline-block text-[13px] font-semibold text-slate-500">
+            조건 지우기
+          </Link>
+        )}
+      </form>
+
+      <div className="mt-5 space-y-3">
+        {rows.length === 0 && (
           <p className="rounded-2xl bg-slate-50 px-4 py-12 text-center text-sm text-slate-400">
-            아직 등록된 공사가 없어요
+            {hasFilter ? "조건에 맞는 공사가 없어요" : "아직 등록된 공사가 없어요"}
           </p>
         )}
-
-        {projects.map((p) => (
-          <Link
+        {rows.map((p) => (
+          <ProjectCard
             key={p.id}
-            href={`/projects/${p.id}`}
-            className="block rounded-2xl border border-slate-100 p-4 transition-colors hover:border-slate-300"
-          >
-            <div className="flex items-start justify-between gap-3">
-              <div className="min-w-0">
-                <h2 className="font-bold leading-snug text-slate-900">{p.title}</h2>
-                <p className="mt-1 text-[13px] text-slate-500">
-                  {p.category}
-                  {p.client.clientProfile?.region && ` · ${p.client.clientProfile.region}`}
-                  {" · 마감 "}
-                  {p.deadlineAt.toLocaleDateString("ko-KR")}
-                </p>
-              </div>
-              <span
-                className={`shrink-0 rounded-full px-2.5 py-1 text-[11px] font-bold ${STATUS_STYLE[p.recruitStatus]}`}
-              >
-                {STATUS_LABEL[p.recruitStatus]}
-              </span>
-            </div>
-
-            <div className="mt-3 flex flex-wrap items-center gap-x-3 gap-y-1.5 text-[13px]">
-              {p.budget != null && (
-                <span className="font-bold text-slate-900">
-                  {p.budget.toLocaleString("ko-KR")}원
-                </span>
-              )}
-              <span className="text-slate-400">지원 {p._count.applications}건</span>
-              <span className="flex flex-wrap gap-1">
-                {p.skills.map((s) => (
-                  <span
-                    key={s.skill.name}
-                    className="rounded-md bg-slate-100 px-1.5 py-0.5 text-[11px] text-slate-600"
-                  >
-                    {s.skill.name}
-                  </span>
-                ))}
-              </span>
-            </div>
-          </Link>
+            p={{
+              id: p.id,
+              title: p.title,
+              category: p.category,
+              budget: p.budget,
+              deadlineAt: p.deadlineAt,
+              recruitStatus: p.recruitStatus,
+              skills: p.skills.map((s) => s.skill.name),
+              applicationCount: p._count.applications,
+              region: p.client.clientProfile?.region ?? null,
+            }}
+          />
         ))}
       </div>
 
@@ -121,9 +157,9 @@ export default async function ProjectsPage({
           {Array.from({ length: totalPages }, (_, i) => i + 1).map((n) => (
             <Link
               key={n}
-              href={`/projects?page=${n}`}
+              href={pageHref(n)}
               className={`rounded-lg px-3 py-1.5 text-sm font-semibold ${
-                n === page ? "bg-slate-900 text-white" : "text-slate-500 hover:bg-slate-100"
+                n === query.page ? "bg-slate-900 text-white" : "text-slate-500 hover:bg-slate-100"
               }`}
             >
               {n}

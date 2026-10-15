@@ -11,6 +11,9 @@ const JUNK_EMAILS = [
   "browser@wb.local",
   "pf@wb.local",
   "prod-check@wb.local",
+  "e2e-owner@wb.local",
+  "e2e-pro1@wb.local",
+  "e2e-pro2@wb.local",
 ];
 
 async function main() {
@@ -25,6 +28,10 @@ async function main() {
 
   const removedProjects = await prisma.project.deleteMany({ where: { clientId: { in: ownerIds } } });
   console.log(`테스트 프로젝트 ${removedProjects.count}건 삭제`);
+
+  // Application.freelancerId 도 RESTRICT — 테스트 전문가가 남긴 지원서를 먼저 비운다
+  const removedApps = await prisma.application.deleteMany({ where: { freelancerId: { in: ownerIds } } });
+  console.log(`테스트 지원서 ${removedApps.count}건 삭제`);
 
   const removed = await prisma.user.deleteMany({ where: { id: { in: ownerIds } } });
   console.log(`테스트 계정 ${removed.count}개 삭제`);

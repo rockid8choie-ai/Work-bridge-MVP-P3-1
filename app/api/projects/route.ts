@@ -1,7 +1,12 @@
-import type { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/server/db";
 import { fail, ok, readJson } from "@/lib/server/api";
 import { requireProfile, requireRole } from "@/lib/server/guard";
+import { syncRecruitStatuses } from "@/lib/server/projects";
+import {
+  buildProjectOrderBy,
+  buildProjectWhere,
+  projectCardSelect,
+} from "@/lib/server/projects.query";
 import {
   createProjectSchema,
   PAGE_SIZE,
@@ -19,52 +24,17 @@ export async function GET(request: Request) {
     const url = new URL(request.url);
     const query = projectQuerySchema.parse(Object.fromEntries(url.searchParams));
 
-    const where: Prisma.ProjectWhereInput = {
-      deletedAt: null,
-      ...(query.status && { recruitStatus: query.status }),
-      ...(query.category && { category: query.category }),
-      ...(query.skill && { skills: { some: { skill: { name: query.skill } } } }),
-      ...(query.deadlineBefore && { deadlineAt: { lte: new Date(query.deadlineBefore) } }),
-      ...((query.budgetMin !== undefined || query.budgetMax !== undefined) && {
-        budget: {
-          ...(query.budgetMin !== undefined && { gte: query.budgetMin }),
-          ...(query.budgetMax !== undefined && { lte: query.budgetMax }),
-        },
-      }),
-      ...(query.q && {
-        OR: [
-          { title: { contains: query.q, mode: "insensitive" } },
-          { description: { contains: query.q, mode: "insensitive" } },
-        ],
-      }),
-    };
+    await syncRecruitStatuses(); // 읽을 때 시간 경과 전환을 맞춘다 (B-15, B-16)
 
-    const orderBy: Prisma.ProjectOrderByWithRelationInput =
-      query.sort === "deadline"
-        ? { deadlineAt: "asc" }
-        : query.sort === "budget"
-          ? { budget: "desc" }
-          : { createdAt: "desc" };
-
+    const where = buildProjectWhere(query);
     const [total, rows] = await Promise.all([
       prisma.project.count({ where }),
       prisma.project.findMany({
         where,
-        orderBy,
+        orderBy: buildProjectOrderBy(query.sort),
         skip: (query.page - 1) * PAGE_SIZE,
         take: PAGE_SIZE,
-        select: {
-          id: true,
-          title: true,
-          category: true,
-          budget: true,
-          deadlineAt: true,
-          recruitStatus: true,
-          createdAt: true,
-          skills: { select: { skill: { select: { name: true } } } },
-          _count: { select: { applications: true } },
-          client: { select: { name: true, clientProfile: { select: { region: true } } } },
-        },
+        select: projectCardSelect,
       }),
     ]);
 

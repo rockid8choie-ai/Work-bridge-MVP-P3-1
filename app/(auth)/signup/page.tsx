@@ -1,8 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { Suspense, useState } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { apiPost, ApiRequestError } from "@/lib/client/api";
 
 type Role = "client" | "freelancer";
@@ -12,9 +12,21 @@ const ROLES: { value: Role; label: string; desc: string }[] = [
   { value: "freelancer", label: "전문가", desc: "보수 일감을 받고 싶어요" },
 ];
 
+/** useSearchParams 는 Suspense 경계가 필요하다 — 빌드 시 정적 렌더링 오류를 피하기 위한 래퍼 */
 export default function SignupPage() {
+  return (
+    <Suspense>
+      <SignupForm />
+    </Suspense>
+  );
+}
+
+function SignupForm() {
   const router = useRouter();
-  const [role, setRole] = useState<Role>("client");
+  const params = useSearchParams();
+  // 랜딩의 "건물주로 시작 / 전문가로 시작" 버튼이 ?role= 로 넘긴다 (B-29)
+  const preset = params.get("role");
+  const [role, setRole] = useState<Role>(preset === "freelancer" ? "freelancer" : "client");
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
