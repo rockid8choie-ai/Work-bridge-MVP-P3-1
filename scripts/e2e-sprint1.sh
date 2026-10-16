@@ -2,7 +2,6 @@
 # 스프린트 1 E2E — 지원·수락·자동거절·알림·북마크·수정잠금·마감·취소·삭제 (67 검사)
 # 사용: npm run dev 띄운 뒤  bash scripts/e2e-sprint1.sh http://localhost:3000
 # 끝나면 npx tsx scripts/cleanup-test-data.ts 로 e2e-*@wb.local 계정 정리. 10/16 로컬 67/67 통과.
-# 사용: bash e2e.sh <BASE_URL> [extra curl args...]
 set -u
 BASE="$1"; shift
 EXTRA=("$@")
