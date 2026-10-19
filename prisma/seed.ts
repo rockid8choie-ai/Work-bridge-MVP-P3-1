@@ -75,6 +75,33 @@ async function main() {
     create: { vendorId: vendor.id, skillId: waterproof.id },
   });
 
+  // 두 번째 전문가 — "한 명 수락 → 나머지 자동 거절" 을 시연하려면 지원자가 둘 이상 필요하다 (B-20)
+  const plumbing = await prisma.skill.findUniqueOrThrow({ where: { name: "설비·배관" } });
+  const vendor2 = await prisma.user.upsert({
+    where: { email: "pro2@workbridge.test" },
+    update: {},
+    create: {
+      email: "pro2@workbridge.test",
+      name: "이설비",
+      role: "freelancer",
+      passwordHash,
+      vendorProfile: {
+        create: {
+          mainCategory: "설비·배관",
+          years: 9,
+          hourlyRate: 55000,
+        },
+      },
+    },
+  });
+  for (const skill of [plumbing, waterproof]) {
+    await prisma.vendorSkill.upsert({
+      where: { vendorId_skillId: { vendorId: vendor2.id, skillId: skill.id } },
+      update: {},
+      create: { vendorId: vendor2.id, skillId: skill.id },
+    });
+  }
+
   const DEMO_PROJECTS = [
     {
       title: "3층 화장실 천장 누수 보수",
@@ -117,7 +144,7 @@ async function main() {
     console.log(`데모 프로젝트 생성: ${p.title}`);
   }
 
-  console.log("데모 계정: owner@workbridge.test / pro@workbridge.test (비밀번호 demo1234)");
+  console.log("데모 계정: owner@workbridge.test / pro@workbridge.test / pro2@workbridge.test (비밀번호 demo1234)");
 }
 
 main()
