@@ -51,8 +51,8 @@ function SignupForm() {
   return (
     <form onSubmit={submit} className="space-y-5">
       <div>
-        <h1 className="text-lg font-bold text-slate-900">회원가입</h1>
-        <p className="mt-1 text-sm text-slate-500">역할은 가입 후에 바꿀 수 없어요.</p>
+        <h1 className="text-h3 text-ink-900">회원가입</h1>
+        <p className="mt-1 text-sm text-ink-500">역할은 가입 후에 바꿀 수 없어요.</p>
       </div>
 
       <div className="grid grid-cols-2 gap-2">
@@ -61,14 +61,14 @@ function SignupForm() {
             key={r.value}
             type="button"
             onClick={() => setRole(r.value)}
-            className={`rounded-xl border p-3 text-left transition-colors ${
+            className={`rounded-control border p-3 text-left transition-colors ${
               role === r.value
-                ? "border-blue-600 bg-blue-50"
-                : "border-slate-200 hover:border-slate-300"
+                ? "border-accent-500 bg-accent-50"
+                : "border-line-200 hover:border-ink-400"
             }`}
           >
-            <span className="block text-sm font-bold text-slate-900">{r.label}</span>
-            <span className="mt-0.5 block text-xs leading-snug text-slate-500">{r.desc}</span>
+            <span className="block text-sm font-bold text-ink-900">{r.label}</span>
+            <span className="mt-0.5 block text-xs leading-snug text-ink-500">{r.desc}</span>
           </button>
         ))}
       </div>
@@ -93,20 +93,20 @@ function SignupForm() {
       />
 
       {error && (
-        <p className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-600">{error}</p>
+        <p className="rounded-control bg-danger-50 px-3 py-2 text-sm text-danger-600">{error}</p>
       )}
 
       <button
         type="submit"
         disabled={busy}
-        className="w-full rounded-xl bg-blue-600 py-3 text-sm font-bold text-white transition-colors hover:bg-blue-700 disabled:opacity-40"
+        className="w-full rounded-control bg-ink-900 py-3 text-sm font-bold text-white transition-colors hover:bg-ink-700 disabled:opacity-40"
       >
         {busy ? "가입 중…" : "가입하기"}
       </button>
 
-      <p className="text-center text-sm text-slate-500">
+      <p className="text-center text-sm text-ink-500">
         이미 계정이 있나요?{" "}
-        <Link href="/login" className="font-semibold text-blue-600">
+        <Link href="/login" className="font-semibold text-accent-600">
           로그인
         </Link>
       </p>
@@ -130,14 +130,14 @@ function Field({
 } & Omit<React.InputHTMLAttributes<HTMLInputElement>, "onChange" | "value" | "type">) {
   return (
     <label className="block">
-      <span className="text-sm font-semibold text-slate-700">{label}</span>
-      {hint && <span className="ml-1.5 text-xs text-slate-400">{hint}</span>}
+      <span className="text-label text-ink-700">{label}</span>
+      {hint && <span className="ml-1.5 text-caption text-ink-400">{hint}</span>}
       <input
         {...rest}
         type={type}
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        className="mt-1.5 w-full rounded-xl border border-slate-200 px-3 py-2.5 text-sm outline-none transition-colors focus:border-blue-600"
+        className="mt-1.5 w-full rounded-control border border-line-200 px-3 py-2.5 text-sm outline-none transition-colors focus:border-accent-500 focus-visible:outline-none"
       />
     </label>
   );

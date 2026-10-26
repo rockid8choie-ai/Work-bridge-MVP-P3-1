@@ -20,17 +20,17 @@ export default async function ApplicantsPage({ params }: { params: Promise<{ id:
 
   return (
     <div className="max-w-2xl">
-      <Link href={`/projects/${id}`} className="text-sm font-semibold text-slate-400">
+      <Link href={`/projects/${id}`} className="text-sm font-semibold text-ink-400">
         ← {project.title}
       </Link>
       <div className="mt-3 flex items-end justify-between">
-        <h1 className="text-xl font-extrabold tracking-tight text-slate-900">지원자 관리</h1>
-        <span className="text-[13px] text-slate-500">
+        <h1 className="text-h2 text-ink-900">지원자 관리</h1>
+        <span className="text-[13px] text-ink-500">
           {RECRUIT_LABEL[project.recruitStatus]}
           {project.dealStatus && ` · ${DEAL_LABEL[project.dealStatus]}`}
         </span>
       </div>
-      <p className="mt-1.5 text-sm text-slate-500">
+      <p className="mt-1.5 text-sm text-ink-500">
         한 명을 수락하면 나머지 검토중 지원은 자동 거절되고 모집이 마감됩니다.
       </p>
       <div className="mt-6">

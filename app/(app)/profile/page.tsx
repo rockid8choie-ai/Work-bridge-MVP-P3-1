@@ -11,7 +11,7 @@ type Skill = { id: string; name: string };
 
 export default function ProfilePage() {
   return (
-    <Suspense fallback={<p className="text-sm text-slate-400">불러오는 중…</p>}>
+    <Suspense fallback={<p className="text-sm text-ink-400">불러오는 중…</p>}>
       <ProfileForm />
     </Suspense>
   );
@@ -101,14 +101,14 @@ function ProfileForm() {
     }
   };
 
-  if (!role) return <p className="text-sm text-slate-400">불러오는 중…</p>;
+  if (!role) return <p className="text-sm text-ink-400">불러오는 중…</p>;
 
   return (
     <form onSubmit={submit} className="max-w-md space-y-5">
       <div>
-        <h1 className="text-xl font-extrabold tracking-tight text-slate-900">내 프로필</h1>
+        <h1 className="text-h2 text-ink-900">내 프로필</h1>
         {next && (
-          <p className="mt-1.5 rounded-lg bg-blue-50 px-3 py-2 text-sm text-blue-700">
+          <p className="mt-1.5 rounded-control bg-accent-50 px-3 py-2 text-sm text-accent-600">
             먼저 프로필을 작성해 주세요. 저장하면 하던 작업으로 돌아갑니다.
           </p>
         )}
@@ -188,8 +188,8 @@ function ProfileForm() {
                     }
                     className={`rounded-full border px-3 py-1.5 text-sm font-semibold transition-colors ${
                       on
-                        ? "border-blue-600 bg-blue-50 text-blue-700"
-                        : "border-slate-200 text-slate-600"
+                        ? "border-accent-500 bg-accent-50 text-accent-600"
+                        : "border-line-200 text-ink-700"
                     }`}
                   >
                     {s.name}
@@ -238,12 +238,12 @@ function ProfileForm() {
       )}
 
       <ErrorText>{error}</ErrorText>
-      {saved && <p className="text-sm font-semibold text-emerald-600">저장했어요.</p>}
+      {saved && <p className="text-sm font-semibold text-ok-600">저장했어요.</p>}
 
       <button
         type="submit"
         disabled={busy}
-        className="w-full rounded-xl bg-blue-600 py-3 text-sm font-bold text-white transition-colors hover:bg-blue-700 disabled:opacity-40"
+        className="w-full rounded-control bg-ink-900 py-3 text-sm font-bold text-white transition-colors hover:bg-ink-700 disabled:opacity-40"
       >
         {busy ? "저장 중…" : next ? "저장하고 계속하기" : "저장"}
       </button>

@@ -44,9 +44,9 @@ export default function ApplyForm({ projectId, budget }: { projectId: string; bu
   };
 
   return (
-    <section className="mt-8 rounded-2xl border border-blue-100 bg-blue-50/40 p-5">
-      <h2 className="text-sm font-bold text-slate-800">이 공사에 지원하기</h2>
-      <p className="mt-1 text-[13px] leading-relaxed text-slate-500">
+    <section className="mt-8 rounded-card border border-line-200 bg-paper p-5">
+      <h2 className="text-h3 text-ink-900">이 공사에 지원하기</h2>
+      <p className="mt-1 text-[13px] leading-relaxed text-ink-500">
         금액은 참고용입니다. 수락되면 공정표를 함께 확정한 뒤 금액을 합의합니다.
       </p>
 
@@ -94,7 +94,7 @@ export default function ApplyForm({ projectId, budget }: { projectId: string; bu
           type="button"
           disabled={!canSubmit || busy}
           onClick={submit}
-          className="w-full rounded-xl bg-blue-600 py-3 text-sm font-bold text-white transition-colors hover:bg-blue-700 disabled:opacity-40"
+          className="w-full rounded-control bg-ink-900 py-3 text-sm font-bold text-white transition-colors hover:bg-ink-700 disabled:opacity-40"
         >
           {busy ? "제출 중…" : "지원서 제출"}
         </button>

@@ -25,8 +25,8 @@ export default function BookmarkButton({ projectId, initial }: { projectId: stri
           setBusy(false);
         }
       }}
-      className={`rounded-xl border px-3.5 py-2 text-sm font-bold transition-colors ${
-        on ? "border-amber-300 bg-amber-50 text-amber-700" : "border-slate-200 text-slate-600 hover:border-slate-400"
+      className={`rounded-control border px-3.5 py-2 text-sm font-bold transition-colors ${
+        on ? "border-warn-500 bg-warn-50 text-warn-700" : "border-line-200 text-ink-700 hover:border-ink-400"
       }`}
     >
       {on ? "★ 북마크됨" : "☆ 북마크"}

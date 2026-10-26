@@ -87,15 +87,15 @@ export default function NewProjectPage() {
 
   return (
     <div className="max-w-xl">
-      <h1 className="text-xl font-extrabold tracking-tight text-slate-900">공사 등록</h1>
+      <h1 className="text-h2 text-ink-900">공사 등록</h1>
 
       <ol className="mt-5 flex gap-2">
         {STEPS.map((label, i) => (
           <li key={label} className="flex-1">
-            <div className={`h-1 rounded-full ${i <= step ? "bg-blue-600" : "bg-slate-200"}`} />
+            <div className={`h-1 rounded-full ${i <= step ? "bg-accent-500" : "bg-line-200"}`} />
             <span
               className={`mt-1.5 block text-xs font-semibold ${
-                i <= step ? "text-blue-600" : "text-slate-400"
+                i <= step ? "text-accent-600" : "text-ink-400"
               }`}
             >
               {i + 1}. {label}
@@ -192,8 +192,8 @@ export default function NewProjectPage() {
                     }
                     className={`rounded-full border px-3 py-1.5 text-sm font-semibold transition-colors ${
                       on
-                        ? "border-blue-600 bg-blue-50 text-blue-700"
-                        : "border-slate-200 text-slate-600"
+                        ? "border-accent-500 bg-accent-50 text-accent-600"
+                        : "border-line-200 text-ink-700"
                     }`}
                   >
                     {s.name}
@@ -211,7 +211,7 @@ export default function NewProjectPage() {
             <button
               type="button"
               onClick={() => setStep((s) => s - 1)}
-              className="rounded-xl border border-slate-200 px-5 py-3 text-sm font-bold text-slate-600"
+              className="rounded-control border border-line-200 px-5 py-3 text-sm font-semibold text-ink-900"
             >
               이전
             </button>
@@ -220,7 +220,7 @@ export default function NewProjectPage() {
             type="button"
             disabled={!canNext || busy}
             onClick={() => (step < 2 ? setStep((s) => s + 1) : submit())}
-            className="flex-1 rounded-xl bg-blue-600 py-3 text-sm font-bold text-white transition-colors hover:bg-blue-700 disabled:opacity-40"
+            className="flex-1 rounded-control bg-ink-900 py-3 text-sm font-bold text-white transition-colors hover:bg-ink-700 disabled:opacity-40"
           >
             {busy ? "등록 중…" : step < 2 ? "다음" : "등록하기"}
           </button>

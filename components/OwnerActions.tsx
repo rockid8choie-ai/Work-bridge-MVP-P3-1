@@ -54,20 +54,20 @@ export default function OwnerActions({ projectId, recruitStatus, dealStatus, pen
   } as const;
 
   return (
-    <section className="mt-8 rounded-2xl border border-slate-200 p-5">
-      <h2 className="text-sm font-bold text-slate-700">내 프로젝트 관리</h2>
+    <section className="mt-8 rounded-card border border-line-200 p-5">
+      <h2 className="text-h3 text-ink-900">내 프로젝트 관리</h2>
 
       <div className="mt-3 flex flex-wrap gap-2">
         <Link
           href={`/projects/${projectId}/applicants`}
-          className="rounded-xl bg-slate-900 px-4 py-2 text-sm font-bold text-white"
+          className="rounded-control bg-ink-900 px-4 py-2 text-sm font-bold text-white"
         >
           지원자 관리{pendingCount > 0 && ` (${pendingCount})`}
         </Link>
         {canEdit && (
           <Link
             href={`/projects/${projectId}/edit`}
-            className="rounded-xl border border-slate-200 px-4 py-2 text-sm font-bold text-slate-700"
+            className="rounded-control border border-line-200 px-4 py-2 text-sm font-semibold text-ink-900"
           >
             수정
           </Link>
@@ -76,7 +76,7 @@ export default function OwnerActions({ projectId, recruitStatus, dealStatus, pen
           <button
             type="button"
             onClick={() => setConfirming("close")}
-            className="rounded-xl border border-slate-200 px-4 py-2 text-sm font-bold text-slate-700"
+            className="rounded-control border border-line-200 px-4 py-2 text-sm font-semibold text-ink-900"
           >
             모집 마감
           </button>
@@ -85,7 +85,7 @@ export default function OwnerActions({ projectId, recruitStatus, dealStatus, pen
           <button
             type="button"
             onClick={() => setConfirming("cancel")}
-            className="rounded-xl border border-slate-200 px-4 py-2 text-sm font-bold text-slate-500"
+            className="rounded-control border border-line-200 px-4 py-2 text-sm font-bold text-ink-500"
           >
             취소
           </button>
@@ -94,7 +94,7 @@ export default function OwnerActions({ projectId, recruitStatus, dealStatus, pen
           <button
             type="button"
             onClick={() => setConfirming("delete")}
-            className="rounded-xl px-3 py-2 text-sm font-semibold text-red-500"
+            className="rounded-control px-3 py-2 text-sm font-semibold text-danger-600"
           >
             삭제
           </button>
@@ -102,15 +102,15 @@ export default function OwnerActions({ projectId, recruitStatus, dealStatus, pen
       </div>
 
       {confirming && (
-        <div className="mt-4 rounded-xl bg-slate-50 p-4">
-          <p className="text-sm text-slate-700">{LABEL[confirming]}</p>
+        <div className="mt-4 rounded-control bg-canvas-50 p-4">
+          <p className="text-sm text-ink-700">{LABEL[confirming]}</p>
           <div className="mt-3 flex gap-2">
             <button
               type="button"
               disabled={busy}
               onClick={() => run(confirming)}
-              className={`rounded-lg px-4 py-2 text-sm font-bold text-white disabled:opacity-50 ${
-                confirming === "delete" ? "bg-red-600" : "bg-slate-900"
+              className={`rounded-control px-4 py-2 text-sm font-bold text-white disabled:opacity-50 ${
+                confirming === "delete" ? "bg-danger-600" : "bg-ink-900"
               }`}
             >
               {busy ? "처리 중…" : "네, 진행합니다"}
@@ -119,7 +119,7 @@ export default function OwnerActions({ projectId, recruitStatus, dealStatus, pen
               type="button"
               disabled={busy}
               onClick={() => setConfirming(null)}
-              className="rounded-lg px-4 py-2 text-sm font-semibold text-slate-500"
+              className="rounded-control px-4 py-2 text-sm font-semibold text-ink-500"
             >
               아니요
             </button>
@@ -127,7 +127,7 @@ export default function OwnerActions({ projectId, recruitStatus, dealStatus, pen
         </div>
       )}
 
-      {error && <p className="mt-3 rounded-lg bg-red-50 px-3 py-2 text-sm text-red-600">{error}</p>}
+      {error && <p className="mt-3 rounded-control bg-danger-50 px-3 py-2 text-sm text-danger-600">{error}</p>}
     </section>
   );
 }

@@ -34,35 +34,35 @@ export default async function NotificationsPage() {
     <div className="max-w-2xl">
       <div className="flex items-end justify-between">
         <div>
-          <h1 className="text-xl font-extrabold tracking-tight text-slate-900">알림</h1>
-          <p className="mt-1 text-sm text-slate-500">미확인 {unread}건</p>
+          <h1 className="text-h2 text-ink-900">알림</h1>
+          <p className="mt-1 text-sm text-ink-500">미확인 {unread}건</p>
         </div>
         <MarkAllReadButton disabled={unread === 0} />
       </div>
 
-      <ul className="mt-6 divide-y divide-slate-100 rounded-2xl border border-slate-100">
+      <ul className="mt-6 divide-y divide-line-100 rounded-card border border-line-200">
         {notifications.length === 0 && (
-          <li className="px-4 py-12 text-center text-sm text-slate-400">아직 알림이 없어요</li>
+          <li className="px-4 py-12 text-center text-sm text-ink-400">아직 알림이 없어요</li>
         )}
         {notifications.map((n) => (
           <li key={n.id}>
             <a
               href={`/api/notifications/${n.id}/open`}
-              className={`flex items-start gap-3 px-4 py-3.5 transition-colors hover:bg-slate-50 ${
-                n.readAt ? "" : "bg-blue-50/40"
+              className={`flex items-start gap-3 px-4 py-3.5 transition-colors hover:bg-canvas-50 ${
+                n.readAt ? "" : "bg-accent-50/50"
               }`}
             >
               <span
                 aria-hidden
-                className={`mt-2 size-2 shrink-0 rounded-full ${n.readAt ? "bg-transparent" : "bg-blue-600"}`}
+                className={`mt-2 size-2 shrink-0 rounded-full ${n.readAt ? "bg-transparent" : "bg-accent-500"}`}
               />
               <span className="min-w-0 flex-1">
-                <span className={`block text-sm ${n.readAt ? "text-slate-600" : "font-bold text-slate-900"}`}>
+                <span className={`block text-sm ${n.readAt ? "text-ink-700" : "font-bold text-ink-900"}`}>
                   {n.title}
                 </span>
-                {n.body && <span className="mt-0.5 block truncate text-[13px] text-slate-500">{n.body}</span>}
+                {n.body && <span className="mt-0.5 block truncate text-[13px] text-ink-500">{n.body}</span>}
               </span>
-              <span className="shrink-0 text-[12px] text-slate-400">{timeAgo(n.createdAt)}</span>
+              <span className="shrink-0 text-[12px] text-ink-400">{timeAgo(n.createdAt)}</span>
             </a>
           </li>
         ))}

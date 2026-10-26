@@ -7,9 +7,9 @@ export const RECRUIT_LABEL = {
 } as const;
 
 export const RECRUIT_STYLE = {
-  scheduled: "bg-amber-50 text-amber-700",
-  open: "bg-blue-50 text-blue-700",
-  closed: "bg-slate-100 text-slate-500",
+  scheduled: "bg-warn-50 text-warn-700",
+  open: "bg-accent-50 text-accent-600",
+  closed: "bg-canvas-50 text-ink-500",
 } as const;
 
 /** 거래 단계는 내부 화면(내 프로젝트 · 내 지원 현황 · 계약서)에서만 보인다 (B-17, B-33) */
@@ -22,11 +22,11 @@ export const DEAL_LABEL = {
 } as const;
 
 export const DEAL_STYLE = {
-  awaiting_contract: "bg-violet-50 text-violet-700",
-  awaiting_payment: "bg-amber-50 text-amber-700",
-  in_progress: "bg-blue-50 text-blue-700",
-  completed: "bg-emerald-50 text-emerald-700",
-  cancelled: "bg-slate-100 text-slate-500",
+  awaiting_contract: "bg-line-100 text-ink-700",
+  awaiting_payment: "bg-warn-50 text-warn-700",
+  in_progress: "bg-accent-50 text-accent-600",
+  completed: "bg-ok-50 text-ok-700",
+  cancelled: "bg-canvas-50 text-ink-500",
 } as const;
 
 export const APPLICATION_LABEL = {
@@ -36,9 +36,9 @@ export const APPLICATION_LABEL = {
 } as const;
 
 export const APPLICATION_STYLE = {
-  pending: "bg-amber-50 text-amber-700",
-  accepted: "bg-emerald-50 text-emerald-700",
-  rejected: "bg-slate-100 text-slate-500",
+  pending: "bg-warn-50 text-warn-700",
+  accepted: "bg-ok-50 text-ok-700",
+  rejected: "bg-canvas-50 text-ink-500",
 } as const;
 
 export const PROJECT_CATEGORIES = [

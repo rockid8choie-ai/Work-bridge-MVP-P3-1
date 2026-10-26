@@ -27,29 +27,29 @@ export default async function AppLayout({ children }: { children: React.ReactNod
 
   return (
     <div className="flex min-h-dvh flex-col">
-      <header className="border-b border-slate-100">
+      <header className="border-b border-line-200">
         <div className="mx-auto flex w-full max-w-4xl items-center justify-between px-5 py-3.5">
-          <Link href="/" className="text-base font-extrabold tracking-tight text-slate-900">
-            Work<span className="text-blue-600">Bridge</span>
+          <Link href="/" className="text-base font-bold tracking-tight text-ink-900">
+            Work<span className="text-accent-600">Bridge</span>
           </Link>
           <nav className="flex items-center gap-4 text-sm">
             {menu.map((m) => (
-              <Link key={m.href} href={m.href} className="font-semibold text-slate-700">
+              <Link key={m.href} href={m.href} className="font-semibold text-ink-700">
                 {m.label}
               </Link>
             ))}
-            <Link href="/notifications" className="relative font-semibold text-slate-700">
+            <Link href="/notifications" className="relative font-semibold text-ink-700">
               알림
               {unread > 0 && (
-                <span className="absolute -right-3.5 -top-1.5 min-w-4 rounded-full bg-red-500 px-1 text-center text-[10px] font-bold leading-4 text-white">
+                <span className="absolute -right-3.5 -top-1.5 min-w-4 rounded-full bg-danger-500 px-1 text-center text-[10px] font-bold leading-4 text-white">
                   {unread > 99 ? "99+" : unread}
                 </span>
               )}
             </Link>
-            <Link href="/profile" className="font-semibold text-slate-700">
+            <Link href="/profile" className="font-semibold text-ink-700">
               내 프로필
             </Link>
-            <span className="hidden text-slate-400 sm:inline">
+            <span className="hidden text-ink-400 sm:inline">
               {user.name}
               <span className="ml-1 text-xs">({user.role === "client" ? "건물주" : "전문가"})</span>
             </span>

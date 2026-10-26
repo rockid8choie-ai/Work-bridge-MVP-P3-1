@@ -44,17 +44,17 @@ export default async function MyProjectsPage() {
     <div className="max-w-2xl">
       <div className="flex items-end justify-between">
         <div>
-          <h1 className="text-xl font-extrabold tracking-tight text-slate-900">내 프로젝트</h1>
-          <p className="mt-1 text-sm text-slate-500">전체 {projects.length}건</p>
+          <h1 className="text-h2 text-ink-900">내 프로젝트</h1>
+          <p className="mt-1 text-sm text-ink-500">전체 {projects.length}건</p>
         </div>
-        <Link href="/projects/new" className="rounded-xl bg-blue-600 px-4 py-2.5 text-sm font-bold text-white">
+        <Link href="/projects/new" className="rounded-control bg-ink-900 px-4 py-2.5 text-sm font-bold text-white">
           공사 등록
         </Link>
       </div>
 
       <ul className="mt-6 space-y-3">
         {projects.length === 0 && (
-          <li className="rounded-2xl bg-slate-50 px-4 py-12 text-center text-sm text-slate-400">
+          <li className="rounded-panel bg-canvas-50 px-4 py-12 text-center text-sm text-ink-400">
             아직 등록한 공사가 없어요
           </li>
         )}
@@ -62,22 +62,22 @@ export default async function MyProjectsPage() {
         {projects.map((p) => {
           const accepted = p.applications[0]?.freelancer.name;
           return (
-            <li key={p.id} className="rounded-2xl border border-slate-100 p-4">
+            <li key={p.id} className="rounded-card border border-line-200 p-4">
               <div className="flex items-start justify-between gap-3">
                 <div className="min-w-0">
-                  <Link href={`/projects/${p.id}`} className="font-bold leading-snug text-slate-900">
+                  <Link href={`/projects/${p.id}`} className="font-bold leading-snug text-ink-900">
                     {p.title}
                   </Link>
-                  <p className="mt-1 text-[13px] text-slate-500">
+                  <p className="mt-1 text-[13px] text-ink-500">
                     {p.category} · 마감 {dateKo(p.deadlineAt)} · {won(p.budget)}
                   </p>
                 </div>
                 <div className="flex shrink-0 flex-col items-end gap-1">
-                  <span className={`rounded-full px-2.5 py-1 text-[11px] font-bold ${RECRUIT_STYLE[p.recruitStatus]}`}>
+                  <span className={`rounded-full px-2.5 py-1 text-[11px] font-semibold ${RECRUIT_STYLE[p.recruitStatus]}`}>
                     {RECRUIT_LABEL[p.recruitStatus]}
                   </span>
                   {p.dealStatus && (
-                    <span className={`rounded-full px-2.5 py-1 text-[11px] font-bold ${DEAL_STYLE[p.dealStatus]}`}>
+                    <span className={`rounded-full px-2.5 py-1 text-[11px] font-semibold ${DEAL_STYLE[p.dealStatus]}`}>
                       {DEAL_LABEL[p.dealStatus]}
                     </span>
                   )}
@@ -86,13 +86,13 @@ export default async function MyProjectsPage() {
 
               <div className="mt-3 flex flex-wrap items-center gap-3 text-[13px]">
                 {accepted ? (
-                  <span className="text-emerald-700">
+                  <span className="text-ok-700">
                     선정 전문가 <b>{accepted}</b>
                   </span>
                 ) : (
-                  <span className="text-slate-500">검토중 지원 {p._count.applications}건</span>
+                  <span className="text-ink-500">검토중 지원 {p._count.applications}건</span>
                 )}
-                <Link href={`/projects/${p.id}/applicants`} className="font-semibold text-blue-600">
+                <Link href={`/projects/${p.id}/applicants`} className="font-semibold text-accent-600">
                   지원자 관리 →
                 </Link>
               </div>

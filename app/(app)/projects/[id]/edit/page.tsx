@@ -82,17 +82,17 @@ export default function EditProjectPage() {
     }
   };
 
-  if (!loaded && !error) return <p className="py-10 text-center text-sm text-slate-400">불러오는 중…</p>;
+  if (!loaded && !error) return <p className="py-10 text-center text-sm text-ink-400">불러오는 중…</p>;
 
   return (
     <div className="max-w-xl">
-      <Link href={`/projects/${id}`} className="text-sm font-semibold text-slate-400">
+      <Link href={`/projects/${id}`} className="text-sm font-semibold text-ink-400">
         ← 프로젝트
       </Link>
-      <h1 className="mt-3 text-xl font-extrabold tracking-tight text-slate-900">공사 수정</h1>
+      <h1 className="mt-3 text-h2 text-ink-900">공사 수정</h1>
 
       {loaded && loaded.applicationCount > 0 && (
-        <p className="mt-3 rounded-xl bg-amber-50 px-4 py-3 text-[13px] leading-relaxed text-amber-800">
+        <p className="mt-3 rounded-control bg-warn-50 px-4 py-3 text-[13px] leading-relaxed text-warn-700">
           지원자가 {loaded.applicationCount}명 있어 <b>예산과 마감일은 바꿀 수 없어요.</b> 지원자가 본 조건이 바뀌면
           안 되기 때문입니다.
         </p>
@@ -124,7 +124,7 @@ export default function EditProjectPage() {
             <Label hint={locked("deadlineAt") ? "잠김" : undefined}>모집 마감일</Label>
             <input
               type="date"
-              className={`${inputClass} disabled:bg-slate-50 disabled:text-slate-400`}
+              className={`${inputClass} disabled:bg-canvas-50 disabled:text-ink-400`}
               disabled={locked("deadlineAt")}
               value={deadlineAt}
               onChange={(e) => setDeadlineAt(e.target.value)}
@@ -137,7 +137,7 @@ export default function EditProjectPage() {
             type="number"
             min={0}
             step={100000}
-            className={`${inputClass} disabled:bg-slate-50 disabled:text-slate-400`}
+            className={`${inputClass} disabled:bg-canvas-50 disabled:text-ink-400`}
             disabled={locked("budget")}
             value={budget}
             onChange={(e) => setBudget(e.target.value)}
@@ -154,7 +154,7 @@ export default function EditProjectPage() {
                   type="button"
                   onClick={() => setPicked((p) => (on ? p.filter((x) => x !== s.id) : [...p, s.id]))}
                   className={`rounded-full border px-3 py-1.5 text-sm font-semibold transition-colors ${
-                    on ? "border-blue-600 bg-blue-50 text-blue-700" : "border-slate-200 text-slate-600"
+                    on ? "border-accent-500 bg-accent-50 text-accent-600" : "border-line-200 text-ink-700"
                   }`}
                 >
                   {s.name}
@@ -170,7 +170,7 @@ export default function EditProjectPage() {
           type="button"
           disabled={!canSave || busy}
           onClick={save}
-          className="w-full rounded-xl bg-blue-600 py-3 text-sm font-bold text-white transition-colors hover:bg-blue-700 disabled:opacity-40"
+          className="w-full rounded-control bg-ink-900 py-3 text-sm font-bold text-white transition-colors hover:bg-ink-700 disabled:opacity-40"
         >
           {busy ? "저장 중…" : "저장"}
         </button>
