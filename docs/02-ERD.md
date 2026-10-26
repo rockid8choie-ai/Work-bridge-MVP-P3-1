@@ -1,7 +1,7 @@
 # 데이터 모델 (ERD)
 
-> 아래 DSL을 [dbdiagram.io](https://dbdiagram.io)에 붙여넣으면 다이어그램이 생성된다.
-> 제출용 PNG는 거기서 Export 한다.
+> **제출용 다이어그램: [`erd/ERD.png`](erd/ERD.png) (7080×3440) · [`erd/ERD.pdf`](erd/ERD.pdf)** — 원본은 [`erd/erd.html`](erd/erd.html)(Mermaid erDiagram, 브라우저로 열면 렌더링). 2026-10-26 생성.
+> 아래 dbdiagram DSL 은 같은 모델의 텍스트 원본이다. [dbdiagram.io](https://dbdiagram.io)에 붙여넣어도 된다.
 
 ---
 

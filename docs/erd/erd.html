@@ -1,0 +1,191 @@
+<!doctype html><html lang="ko"><head><meta charset="utf-8"><title>WorkBridge ERD</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css">
+<style>
+ body{margin:0;background:#fff;font-family:"Pretendard Variable",Pretendard,sans-serif;color:#222}
+ header{padding:28px 40px 8px}
+ h1{margin:0;font-size:28px;font-weight:700;letter-spacing:-0.01em}
+ p{margin:6px 0 0;color:#676d73;font-size:14px}
+ #d{padding:8px 24px 32px}
+ .mermaid{font-family:"Pretendard Variable",Pretendard,sans-serif}
+@page{size:3540px 1760px;margin:0} @media print{body{-webkit-print-color-adjust:exact}}</style></head><body>
+<header><h1>Work bridge — 데이터 모델 (ERD)</h1>
+<p>18 테이블 · PostgreSQL(Neon) · Prisma 6 · 2026-10 · 건물주(client) ↔ 전문가(freelancer) 외주 매칭. 핵심: scope_items 한 행 = 계약 범위 조항 = 마일스톤 = 정산 단위</p></header>
+<div id="d"><pre class="mermaid">
+erDiagram
+  users {
+    uuid id PK
+    varchar email UK
+    varchar password_hash "소셜 전용은 null"
+    varchar name
+    user_role role "client | freelancer"
+    varchar avatar_url
+    text bio
+    timestamptz created_at
+  }
+  oauth_accounts {
+    uuid id PK
+    uuid user_id FK
+    varchar provider "google | kakao"
+    varchar provider_user_id
+    timestamptz linked_at
+  }
+  refresh_tokens {
+    uuid id PK
+    uuid user_id FK
+    varchar token_hash "SHA-256, 평문 금지"
+    timestamptz expires_at
+    timestamptz revoked_at
+  }
+  client_profiles {
+    uuid user_id PK, FK
+    varchar building_name
+    varchar building_type "상가|오피스|다세대|기타"
+    varchar region
+    varchar website
+  }
+  freelancer_profiles {
+    uuid user_id PK, FK
+    varchar main_category
+    int years
+    int hourly_rate
+    varchar portfolio_url
+  }
+  skills {
+    uuid id PK
+    varchar name UK "기본 6종 + 커스텀"
+    boolean is_custom
+  }
+  freelancer_skills {
+    uuid freelancer_id PK, FK
+    uuid skill_id PK, FK
+  }
+  project_skills {
+    uuid project_id PK, FK
+    uuid skill_id PK, FK
+  }
+  projects {
+    uuid id PK
+    uuid client_id FK
+    varchar title
+    text description
+    varchar category
+    timestamptz recruit_start_at
+    timestamptz deadline_at
+    int budget
+    recruit_status recruit_status "scheduled|open|closed"
+    deal_status deal_status "awaiting_contract..cancelled"
+    timestamptz deleted_at "소프트 삭제"
+    timestamptz created_at
+  }
+  applications {
+    uuid id PK
+    uuid project_id FK "project+freelancer unique"
+    uuid freelancer_id FK
+    text cover_letter
+    int proposed_amount
+    int proposed_days
+    application_status status "pending|accepted|rejected"
+    timestamptz created_at
+  }
+  scope_analyses {
+    uuid id PK
+    uuid project_id FK
+    int total_estimate
+    varchar model "사용한 LLM"
+    timestamptz created_at
+  }
+  scope_items {
+    uuid id PK
+    uuid analysis_id FK
+    int sort_order
+    varchar name "예: 방수 재시공"
+    text description
+    int estimate
+    text rationale "산정 근거"
+  }
+  contracts {
+    uuid id PK
+    uuid project_id FK
+    uuid application_id FK
+    int agreed_amount
+    jsonb scope_snapshot "체결 시점 공정표 사본"
+    timestamptz client_signed_at
+    timestamptz freelancer_signed_at
+    timestamptz created_at
+  }
+  milestones {
+    uuid id PK
+    uuid contract_id FK
+    uuid scope_item_id FK
+    int sort_order
+    varchar title
+    int amount
+    milestone_status status "todo|in_progress|submitted|approved"
+    int fee "수수료 10%"
+    int net "실지급액"
+    timestamptz approved_at
+  }
+  payments {
+    uuid id PK
+    uuid contract_id FK
+    varchar pg_order_id UK
+    varchar pg_payment_key
+    int amount
+    payment_status status "pending|paid|..|refunded"
+    timestamptz paid_at
+  }
+  reviews {
+    uuid id PK
+    uuid project_id FK "project+direction unique"
+    uuid author_id FK
+    review_direction direction
+    int rating "1-5"
+    text comment
+    varchar_arr tags "고정 태그 세트"
+    timestamptz created_at
+  }
+  notifications {
+    uuid id PK
+    uuid user_id FK
+    varchar type
+    varchar title
+    varchar body
+    varchar link "클릭 시 이동"
+    timestamptz read_at
+    timestamptz created_at
+  }
+  bookmarks {
+    uuid user_id PK, FK
+    uuid project_id PK, FK
+    timestamptz created_at
+  }
+
+  users ||--o{ oauth_accounts : "소셜 연동"
+  users ||--o{ refresh_tokens : "발급"
+  users ||--o| client_profiles : "건물주 프로필"
+  users ||--o| freelancer_profiles : "전문가 프로필"
+  freelancer_profiles ||--o{ freelancer_skills : ""
+  skills ||--o{ freelancer_skills : ""
+  projects ||--o{ project_skills : ""
+  skills ||--o{ project_skills : ""
+  users ||--o{ projects : "건물주가 등록"
+  projects ||--o{ applications : "지원"
+  users ||--o{ applications : "전문가가 지원"
+  projects ||--o{ scope_analyses : "AI 공정 분해"
+  scope_analyses ||--o{ scope_items : "공정 항목"
+  projects ||--o| contracts : "체결"
+  applications ||--o| contracts : "수락된 지원"
+  contracts ||--o{ milestones : "공정 = 마일스톤"
+  scope_items |o--o| milestones : "참조"
+  contracts ||--o{ payments : "에스크로 결제"
+  projects ||--o{ reviews : "방향별 1회"
+  users ||--o{ reviews : "작성"
+  users ||--o{ notifications : "수신"
+  users ||--o{ bookmarks : ""
+  projects ||--o{ bookmarks : ""
+</pre></div>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@11.4.1/dist/mermaid.min.js"></script>
+<script>
+mermaid.initialize({startOnLoad:false,theme:'neutral',er:{fontSize:13,entityPadding:12,useMaxWidth:false},themeVariables:{fontFamily:'Pretendard Variable, Pretendard, sans-serif',primaryColor:'#f5f6f6',primaryBorderColor:'#2b2d2f',lineColor:'#2b2d2f',primaryTextColor:'#222'}});
+mermaid.run({querySelector:'.mermaid'}).catch(e=>{document.title='ERR '+e.message}).then(()=>{const s=document.querySelector('svg');document.title='READY '+Math.ceil(s.getBoundingClientRect().width)+'x'+Math.ceil(s.getBoundingClientRect().height);});
+</script></body></html>
