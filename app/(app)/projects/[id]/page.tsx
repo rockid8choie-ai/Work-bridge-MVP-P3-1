@@ -58,28 +58,28 @@ export default async function ProjectDetailPage({ params }: { params: Promise<{ 
 
   return (
     <article className="max-w-2xl">
-      <Link href="/projects" className="text-sm font-semibold text-slate-400">
+      <Link href="/projects" className="text-sm font-semibold text-ink-400">
         ← 프로젝트
       </Link>
 
       <header className="mt-4">
         <div className="flex items-center gap-2">
-          <span className={`rounded-full px-2.5 py-1 text-[11px] font-bold ${RECRUIT_STYLE[project.recruitStatus]}`}>
+          <span className={`rounded-full px-2.5 py-1 text-[11px] font-semibold ${RECRUIT_STYLE[project.recruitStatus]}`}>
             {RECRUIT_LABEL[project.recruitStatus]}
           </span>
           {isOwner && project.dealStatus && (
-            <span className={`rounded-full px-2.5 py-1 text-[11px] font-bold ${DEAL_STYLE[project.dealStatus]}`}>
+            <span className={`rounded-full px-2.5 py-1 text-[11px] font-semibold ${DEAL_STYLE[project.dealStatus]}`}>
               {DEAL_LABEL[project.dealStatus]}
             </span>
           )}
-          <span className="text-[13px] text-slate-500">{project.category}</span>
+          <span className="text-[13px] text-ink-500">{project.category}</span>
         </div>
         <div className="mt-2.5 flex items-start justify-between gap-3">
-          <h1 className="text-2xl font-extrabold leading-tight tracking-tight text-slate-900">{project.title}</h1>
+          <h1 className="text-h2 sm:text-h1 text-ink-900">{project.title}</h1>
           {isFreelancer && <BookmarkButton projectId={id} initial={Boolean(bookmarked)} />}
         </div>
-        <p className="mt-2 text-sm text-slate-500">
-          <Link href={`/users/${project.client.id}`} className="font-semibold text-slate-700">
+        <p className="mt-2 text-sm text-ink-500">
+          <Link href={`/users/${project.client.id}`} className="font-semibold text-ink-700">
             {project.client.name}
           </Link>
           {project.client.clientProfile?.buildingName && ` · ${project.client.clientProfile.buildingName}`}
@@ -87,31 +87,31 @@ export default async function ProjectDetailPage({ params }: { params: Promise<{ 
         </p>
       </header>
 
-      <dl className="mt-6 grid grid-cols-3 gap-3 rounded-2xl bg-slate-50 p-4 text-sm">
+      <dl className="mt-6 grid grid-cols-3 gap-3 rounded-card bg-canvas-50 p-4 text-sm">
         <div>
-          <dt className="text-xs text-slate-400">예산</dt>
-          <dd className="mt-0.5 font-bold text-slate-900">{won(project.budget)}</dd>
+          <dt className="text-caption text-ink-400">예산</dt>
+          <dd className="mt-0.5 font-bold text-ink-900">{won(project.budget)}</dd>
         </div>
         <div>
-          <dt className="text-xs text-slate-400">모집 마감</dt>
-          <dd className="mt-0.5 font-bold text-slate-900">{dateKo(project.deadlineAt)}</dd>
+          <dt className="text-caption text-ink-400">모집 마감</dt>
+          <dd className="mt-0.5 font-bold text-ink-900">{dateKo(project.deadlineAt)}</dd>
         </div>
         <div>
-          <dt className="text-xs text-slate-400">지원</dt>
-          <dd className="mt-0.5 font-bold text-slate-900">{project._count.applications}건</dd>
+          <dt className="text-caption text-ink-400">지원</dt>
+          <dd className="mt-0.5 font-bold text-ink-900">{project._count.applications}건</dd>
         </div>
       </dl>
 
-      <section className="mt-7">
-        <h2 className="text-sm font-bold text-slate-700">공사 내용</h2>
-        <p className="mt-2 whitespace-pre-wrap text-[15px] leading-relaxed text-slate-700">{project.description}</p>
+      <section className="mt-7 border-t border-line-100 pt-6">
+        <h2 className="text-h3 text-ink-900">공사 내용</h2>
+        <p className="mt-2 whitespace-pre-wrap text-[15px] leading-relaxed text-ink-700">{project.description}</p>
       </section>
 
-      <section className="mt-7">
-        <h2 className="text-sm font-bold text-slate-700">필요 전문분야</h2>
+      <section className="mt-7 border-t border-line-100 pt-6">
+        <h2 className="text-h3 text-ink-900">필요 전문분야</h2>
         <div className="mt-2 flex flex-wrap gap-1.5">
           {project.skills.map((s) => (
-            <span key={s.skill.id} className="rounded-lg bg-slate-100 px-2.5 py-1 text-[13px] text-slate-600">
+            <span key={s.skill.id} className="rounded-full border border-line-200 px-2.5 py-1 text-[13px] text-ink-700">
               {s.skill.name}
             </span>
           ))}
@@ -126,29 +126,29 @@ export default async function ProjectDetailPage({ params }: { params: Promise<{ 
             dealStatus={project.dealStatus}
             pendingCount={pendingCount}
           />
-          <section className="mt-6 rounded-2xl border border-dashed border-slate-200 p-5">
-            <h2 className="text-sm font-bold text-slate-700">AI 공정 분해</h2>
-            <p className="mt-1.5 text-sm leading-relaxed text-slate-500">
+          <section className="mt-6 rounded-card border border-dashed border-line-200 p-5">
+            <h2 className="text-h3 text-ink-900">AI 공정 분해</h2>
+            <p className="mt-1.5 text-sm leading-relaxed text-ink-500">
               공사 내용을 단위 공정으로 쪼개 항목별 단가를 산정합니다. 그 결과가 그대로 계약 범위 조항이자 작업
               단계이자 정산 단위가 됩니다.
             </p>
-            <p className="mt-3 text-xs font-semibold text-slate-400">스프린트 2에서 구현</p>
+            <p className="mt-3 text-xs font-semibold text-ink-400">스프린트 2에서 구현</p>
           </section>
         </>
       )}
 
       {isFreelancer && myApplication && (
-        <section className="mt-8 rounded-2xl border border-slate-200 p-5">
+        <section className="mt-8 rounded-card border border-line-200 p-5">
           <div className="flex items-center justify-between">
-            <h2 className="text-sm font-bold text-slate-700">내 지원</h2>
-            <span className={`rounded-full px-2.5 py-1 text-[11px] font-bold ${APPLICATION_STYLE[myApplication.status]}`}>
+            <h2 className="text-h3 text-ink-900">내 지원</h2>
+            <span className={`rounded-full px-2.5 py-1 text-[11px] font-semibold ${APPLICATION_STYLE[myApplication.status]}`}>
               {APPLICATION_LABEL[myApplication.status]}
             </span>
           </div>
-          <p className="mt-2 text-sm text-slate-600">
+          <p className="mt-2 text-sm text-ink-700">
             {won(myApplication.proposedAmount)} · {myApplication.proposedDays}일 · {dateKo(myApplication.createdAt)} 지원
           </p>
-          <Link href="/me/applications" className="mt-3 inline-block text-[13px] font-semibold text-blue-600">
+          <Link href="/me/applications" className="mt-3 inline-block text-[13px] font-semibold text-accent-600">
             내 지원 현황 보기 →
           </Link>
         </section>
@@ -159,14 +159,14 @@ export default async function ProjectDetailPage({ params }: { params: Promise<{ 
       )}
 
       {isFreelancer && !myApplication && project.recruitStatus !== "open" && (
-        <p className="mt-8 rounded-2xl bg-slate-50 px-4 py-5 text-center text-sm text-slate-500">
+        <p className="mt-8 rounded-panel bg-canvas-50 px-4 py-5 text-center text-sm text-ink-500">
           {project.recruitStatus === "scheduled" ? "아직 모집 전이에요" : "모집이 마감된 공사예요"}
         </p>
       )}
 
       {recommended.length > 0 && (
-        <section className="mt-10">
-          <h2 className="text-sm font-bold text-slate-700">비슷한 공사</h2>
+        <section className="mt-10 border-t border-line-100 pt-6">
+          <h2 className="text-h3 text-ink-900">비슷한 공사</h2>
           <div className="mt-3 space-y-2">
             {recommended.map((p) => (
               <ProjectCard

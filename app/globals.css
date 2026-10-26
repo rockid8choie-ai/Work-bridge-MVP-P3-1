@@ -2,9 +2,85 @@
 @import url("https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css");
 @import "tailwindcss";
 
+/*
+ * 디자인 토큰 — docs/08-디자인-가이드.md 4장.
+ * slate(파란 틴트 회색) 대신 저채도 뉴트럴(ink/line/canvas), 블루 액센트 1색은 구두점(링크·선택·배지·포커스)으로만.
+ * CTA 채움은 ink-900. radius 는 control/card/panel 3개, 쉐도우는 1단계만.
+ */
 @theme inline {
   --font-sans: "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont,
     "Segoe UI", sans-serif;
+
+  /* 뉴트럴 (Thumbtack gray + Airbnb 절충) */
+  --color-ink-900: #222325; /* 본문·헤딩. 순수 검정 금지 */
+  --color-ink-700: #4c4e52;
+  --color-ink-500: #676d73; /* 보조 텍스트 */
+  --color-ink-400: #83878d; /* 플레이스홀더 */
+  --color-line-200: #dddee1; /* 헤어라인·카드 보더 */
+  --color-line-100: #eeeff2;
+  --color-canvas-50: #f5f6f6; /* 섹션 배경 */
+  --color-paper: #ffffff;
+
+  /* 액센트: 구두점으로만 (링크·선택·배지·포커스) */
+  --color-accent-600: #0175a3; /* 텍스트 대비용 */
+  --color-accent-500: #009fd9;
+  --color-accent-50: #e6f6fc;
+
+  /* 상태 */
+  --color-ok-700: #136b4a;
+  --color-ok-600: #16855b; /* 승인·완료 */
+  --color-ok-50: #e8f5ee;
+  --color-warn-700: #8a6508;
+  --color-warn-500: #eab308; /* 확인 필요 */
+  --color-warn-50: #fdf6dc;
+  --color-danger-600: #dc2626;
+  --color-danger-50: #fdecec;
+
+  /* 형태 */
+  --radius-control: 8px; /* 버튼·인풋 */
+  --radius-card: 12px; /* 카드 */
+  --radius-panel: 16px; /* 큰 패널·모달 */
+  --shadow-1: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+/* 타이포 스케일 — docs/08 4장. 클래스 하나로 크기·행간·웨이트를 함께 고정한다. */
+@utility text-display {
+  font-size: 48px;
+  line-height: 56px;
+  font-weight: 300;
+  letter-spacing: -0.02em;
+}
+@utility text-h1 {
+  font-size: 40px;
+  line-height: 44px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+@utility text-h2 {
+  font-size: 24px;
+  line-height: 32px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+@utility text-h3 {
+  font-size: 18px;
+  line-height: 24px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+@utility text-body {
+  font-size: 16px;
+  line-height: 25.6px;
+  font-weight: 400;
+}
+@utility text-label {
+  font-size: 14px;
+  line-height: 20px;
+  font-weight: 500;
+}
+@utility text-caption {
+  font-size: 12px;
+  line-height: 16px;
 }
 
 /* 다크 모드는 MVP 범위 밖이다. 시연 환경마다 색이 달라지는 것을 막으려고 밝은 톤으로 고정한다. */
@@ -14,5 +90,19 @@ html {
 
 body {
   font-family: var(--font-sans);
+  font-size: 16px;
+  line-height: 1.6;
+  color: var(--color-ink-900);
+  background: var(--color-paper);
   -webkit-font-smoothing: antialiased;
+}
+
+::placeholder {
+  color: var(--color-ink-400);
+}
+
+/* 포커스 링 — 액센트는 여기서만 면적을 가진다. */
+:where(input, textarea, select, button, a):focus-visible {
+  outline: 2px solid var(--color-accent-500);
+  outline-offset: 2px;
 }

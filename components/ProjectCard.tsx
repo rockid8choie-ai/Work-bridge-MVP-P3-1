@@ -14,39 +14,43 @@ export type ProjectCardData = {
   region: string | null;
 };
 
+/** 카드 구조는 docs/08 5장 — 상단 카테고리·상태 chip, 제목 18/600 두 줄, 지역·마감·예산, 전문분야 chips, 하단 지원자 수. */
 export default function ProjectCard({ p, compact = false }: { p: ProjectCardData; compact?: boolean }) {
   return (
     <Link
       href={`/projects/${p.id}`}
-      className="block rounded-2xl border border-slate-100 p-4 transition-colors hover:border-slate-300"
+      className="block rounded-card border border-line-200 bg-paper p-4 transition-colors hover:border-ink-400"
     >
-      <div className="flex items-start justify-between gap-3">
-        <div className="min-w-0">
-          <h2 className={`font-bold leading-snug text-slate-900 ${compact ? "text-[15px]" : ""}`}>{p.title}</h2>
-          <p className="mt-1 text-[13px] text-slate-500">
-            {p.category}
-            {p.region && ` · ${p.region}`}
-            {" · 마감 "}
-            {dateKo(p.deadlineAt)}
-          </p>
-        </div>
-        <span className={`shrink-0 rounded-full px-2.5 py-1 text-[11px] font-bold ${RECRUIT_STYLE[p.recruitStatus]}`}>
+      <div className="flex items-center gap-1.5">
+        <span className="rounded-full bg-line-100 px-2.5 py-1 text-[11px] font-medium text-ink-700">{p.category}</span>
+        <span className={`rounded-full px-2.5 py-1 text-[11px] font-semibold ${RECRUIT_STYLE[p.recruitStatus]}`}>
           {RECRUIT_LABEL[p.recruitStatus]}
         </span>
       </div>
 
+      <h2 className={`mt-2.5 line-clamp-2 text-ink-900 ${compact ? "text-[15px] font-semibold leading-snug" : "text-h3"}`}>
+        {p.title}
+      </h2>
+      <p className="mt-1.5 text-[13px] text-ink-500">
+        {p.region && `${p.region} · `}
+        마감 {dateKo(p.deadlineAt)}
+        {" · "}
+        <span className="font-semibold text-ink-900">{won(p.budget)}</span>
+      </p>
+
       {!compact && (
-        <div className="mt-3 flex flex-wrap items-center gap-x-3 gap-y-1.5 text-[13px]">
-          <span className="font-bold text-slate-900">{won(p.budget)}</span>
-          <span className="text-slate-400">지원 {p.applicationCount}건</span>
-          <span className="flex flex-wrap gap-1">
-            {p.skills.map((name) => (
-              <span key={name} className="rounded-md bg-slate-100 px-1.5 py-0.5 text-[11px] text-slate-600">
-                {name}
-              </span>
-            ))}
-          </span>
-        </div>
+        <>
+          {p.skills.length > 0 && (
+            <div className="mt-3 flex flex-wrap gap-1">
+              {p.skills.map((name) => (
+                <span key={name} className="rounded-full border border-line-200 px-2 py-0.5 text-[11px] text-ink-700">
+                  {name}
+                </span>
+              ))}
+            </div>
+          )}
+          <p className="mt-3 border-t border-line-100 pt-2.5 text-[13px] text-ink-500">지원자 {p.applicationCount}명</p>
+        </>
       )}
     </Link>
   );

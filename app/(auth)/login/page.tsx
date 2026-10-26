@@ -40,47 +40,47 @@ function LoginForm() {
 
   return (
     <form onSubmit={submit} className="space-y-5">
-      <h1 className="text-lg font-bold text-slate-900">로그인</h1>
+      <h1 className="text-h3 text-ink-900">로그인</h1>
 
       <label className="block">
-        <span className="text-sm font-semibold text-slate-700">이메일</span>
+        <span className="text-label text-ink-700">이메일</span>
         <input
           type="email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           autoComplete="email"
           required
-          className="mt-1.5 w-full rounded-xl border border-slate-200 px-3 py-2.5 text-sm outline-none transition-colors focus:border-blue-600"
+          className="mt-1.5 w-full rounded-control border border-line-200 px-3 py-2.5 text-sm outline-none transition-colors focus:border-accent-500 focus-visible:outline-none"
         />
       </label>
 
       <label className="block">
-        <span className="text-sm font-semibold text-slate-700">비밀번호</span>
+        <span className="text-label text-ink-700">비밀번호</span>
         <input
           type="password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           autoComplete="current-password"
           required
-          className="mt-1.5 w-full rounded-xl border border-slate-200 px-3 py-2.5 text-sm outline-none transition-colors focus:border-blue-600"
+          className="mt-1.5 w-full rounded-control border border-line-200 px-3 py-2.5 text-sm outline-none transition-colors focus:border-accent-500 focus-visible:outline-none"
         />
       </label>
 
       {error && (
-        <p className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-600">{error}</p>
+        <p className="rounded-control bg-danger-50 px-3 py-2 text-sm text-danger-600">{error}</p>
       )}
 
       <button
         type="submit"
         disabled={busy}
-        className="w-full rounded-xl bg-blue-600 py-3 text-sm font-bold text-white transition-colors hover:bg-blue-700 disabled:opacity-40"
+        className="w-full rounded-control bg-ink-900 py-3 text-sm font-bold text-white transition-colors hover:bg-ink-700 disabled:opacity-40"
       >
         {busy ? "확인 중…" : "로그인"}
       </button>
 
-      <p className="text-center text-sm text-slate-500">
+      <p className="text-center text-sm text-ink-500">
         계정이 없나요?{" "}
-        <Link href="/signup" className="font-semibold text-blue-600">
+        <Link href="/signup" className="font-semibold text-accent-600">
           회원가입
         </Link>
       </p>

@@ -14,7 +14,7 @@ export default function LogoutButton() {
         router.push("/");
         router.refresh();
       }}
-      className="text-slate-400 transition-colors hover:text-slate-700"
+      className="text-ink-400 transition-colors hover:text-ink-700"
     >
       로그아웃
     </button>

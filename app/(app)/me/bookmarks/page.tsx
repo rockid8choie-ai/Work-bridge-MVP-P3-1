@@ -19,14 +19,14 @@ export default async function MyBookmarksPage() {
 
   return (
     <div className="max-w-2xl">
-      <h1 className="text-xl font-extrabold tracking-tight text-slate-900">내 북마크</h1>
-      <p className="mt-1 text-sm text-slate-500">{rows.length}건</p>
+      <h1 className="text-h2 text-ink-900">내 북마크</h1>
+      <p className="mt-1 text-sm text-ink-500">{rows.length}건</p>
 
       <div className="mt-6 space-y-3">
         {rows.length === 0 && (
-          <p className="rounded-2xl bg-slate-50 px-4 py-12 text-center text-sm text-slate-400">
+          <p className="rounded-panel bg-canvas-50 px-4 py-12 text-center text-sm text-ink-400">
             북마크한 공사가 없어요.{" "}
-            <Link href="/projects" className="font-semibold text-blue-600">
+            <Link href="/projects" className="font-semibold text-accent-600">
               공사 찾아보기
             </Link>
           </p>

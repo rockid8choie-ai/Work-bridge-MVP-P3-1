@@ -66,63 +66,63 @@ export default async function ProjectsPage({
     <div>
       <div className="flex items-end justify-between">
         <div>
-          <h1 className="text-xl font-extrabold tracking-tight text-slate-900">프로젝트</h1>
-          <p className="mt-1 text-sm text-slate-500">
+          <h1 className="text-h2 text-ink-900">프로젝트</h1>
+          <p className="mt-1 text-sm text-ink-500">
             {hasFilter ? `조건에 맞는 공사 ${total}건` : `전체 ${total}건`}
           </p>
         </div>
         {user?.role === "client" && (
-          <Link href="/projects/new" className="rounded-xl bg-blue-600 px-4 py-2.5 text-sm font-bold text-white">
+          <Link href="/projects/new" className="rounded-control bg-ink-900 px-4 py-2.5 text-sm font-bold text-white">
             공사 등록
           </Link>
         )}
       </div>
 
-      <form method="get" action="/projects" className="mt-5 rounded-2xl bg-slate-50 p-4">
+      <form method="get" action="/projects" className="mt-5 rounded-panel bg-canvas-50 p-4">
         <div className="flex gap-2">
           <input
             name="q"
             defaultValue={query.q ?? ""}
             placeholder="제목이나 공사 내용으로 검색"
-            className="min-w-0 flex-1 rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm outline-none focus:border-blue-600"
+            className="min-w-0 flex-1 rounded-control border border-line-200 bg-paper px-3 py-2.5 text-sm outline-none focus:border-accent-500"
           />
-          <button type="submit" className="rounded-xl bg-slate-900 px-4 py-2.5 text-sm font-bold text-white">
+          <button type="submit" className="rounded-control bg-ink-900 px-4 py-2.5 text-sm font-bold text-white">
             검색
           </button>
         </div>
         <div className="mt-2.5 grid grid-cols-2 gap-2 sm:grid-cols-5">
-          <select name="category" defaultValue={query.category ?? ""} className="rounded-xl border border-slate-200 bg-white px-2.5 py-2 text-[13px]">
+          <select name="category" defaultValue={query.category ?? ""} className="rounded-control border border-line-200 bg-paper px-2.5 py-2 text-[13px]">
             <option value="">전체 카테고리</option>
             {PROJECT_CATEGORIES.map((c) => (
               <option key={c} value={c}>{c}</option>
             ))}
           </select>
-          <select name="skill" defaultValue={query.skill ?? ""} className="rounded-xl border border-slate-200 bg-white px-2.5 py-2 text-[13px]">
+          <select name="skill" defaultValue={query.skill ?? ""} className="rounded-control border border-line-200 bg-paper px-2.5 py-2 text-[13px]">
             <option value="">전체 전문분야</option>
             {skills.map((s) => (
               <option key={s.name} value={s.name}>{s.name}</option>
             ))}
           </select>
-          <select name="status" defaultValue={query.status ?? ""} className="rounded-xl border border-slate-200 bg-white px-2.5 py-2 text-[13px]">
+          <select name="status" defaultValue={query.status ?? ""} className="rounded-control border border-line-200 bg-paper px-2.5 py-2 text-[13px]">
             {STATUSES.map((s) => (
               <option key={s.value} value={s.value}>{s.label}</option>
             ))}
           </select>
-          <select name="budgetMax" defaultValue={query.budgetMax ? String(query.budgetMax) : ""} className="rounded-xl border border-slate-200 bg-white px-2.5 py-2 text-[13px]">
+          <select name="budgetMax" defaultValue={query.budgetMax ? String(query.budgetMax) : ""} className="rounded-control border border-line-200 bg-paper px-2.5 py-2 text-[13px]">
             <option value="">예산 전체</option>
             <option value="1000000">100만원 이하</option>
             <option value="3000000">300만원 이하</option>
             <option value="5000000">500만원 이하</option>
             <option value="10000000">1,000만원 이하</option>
           </select>
-          <select name="sort" defaultValue={query.sort} className="rounded-xl border border-slate-200 bg-white px-2.5 py-2 text-[13px]">
+          <select name="sort" defaultValue={query.sort} className="rounded-control border border-line-200 bg-paper px-2.5 py-2 text-[13px]">
             {SORTS.map((s) => (
               <option key={s.value} value={s.value}>{s.label}</option>
             ))}
           </select>
         </div>
         {hasFilter && (
-          <Link href="/projects" className="mt-2.5 inline-block text-[13px] font-semibold text-slate-500">
+          <Link href="/projects" className="mt-2.5 inline-block text-[13px] font-semibold text-ink-500">
             조건 지우기
           </Link>
         )}
@@ -130,7 +130,7 @@ export default async function ProjectsPage({
 
       <div className="mt-5 space-y-3">
         {rows.length === 0 && (
-          <p className="rounded-2xl bg-slate-50 px-4 py-12 text-center text-sm text-slate-400">
+          <p className="rounded-panel bg-canvas-50 px-4 py-12 text-center text-sm text-ink-400">
             {hasFilter ? "조건에 맞는 공사가 없어요" : "아직 등록된 공사가 없어요"}
           </p>
         )}
@@ -158,8 +158,8 @@ export default async function ProjectsPage({
             <Link
               key={n}
               href={pageHref(n)}
-              className={`rounded-lg px-3 py-1.5 text-sm font-semibold ${
-                n === query.page ? "bg-slate-900 text-white" : "text-slate-500 hover:bg-slate-100"
+              className={`rounded-control px-3 py-1.5 text-sm font-semibold ${
+                n === query.page ? "bg-ink-900 text-white" : "text-ink-500 hover:bg-line-100"
               }`}
             >
               {n}
