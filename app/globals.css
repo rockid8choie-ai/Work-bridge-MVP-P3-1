@@ -3,89 +3,296 @@
 @import "tailwindcss";
 
 /*
- * 디자인 토큰 — docs/08-디자인-가이드.md 4장.
- * slate(파란 틴트 회색) 대신 저채도 뉴트럴(ink/line/canvas), 블루 액센트 1색은 구두점(링크·선택·배지·포커스)으로만.
- * CTA 채움은 ink-900. radius 는 control/card/panel 3개, 쉐도우는 1단계만.
+ * 디자인 시스템 v2 — docs/11-디자인-시스템.md 가 원본. 여기 값은 그 문서와 1:1.
+ * 브랜드: BFS 워드마크의 네이비(#0B192F)·블루(#0D3AA6)에서 파생.
+ *  - ink   : 텍스트·CTA 채움 (네이비 계열, 순수 검정 금지)
+ *  - line  : 헤어라인·보더
+ *  - canvas: 섹션 배경 (살짝 쿨톤)
+ *  - accent: BFS 블루 — 링크·선택·강조·그라디언트. 기본 CTA 채움은 ink-900.
+ *  - night : 다크 섹션(히어로·CTA 밴드) 배경
  */
 @theme inline {
   --font-sans: "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont,
     "Segoe UI", sans-serif;
 
-  /* 뉴트럴 (Thumbtack gray + Airbnb 절충) */
-  --color-ink-900: #222325; /* 본문·헤딩. 순수 검정 금지 */
-  --color-ink-700: #4c4e52;
-  --color-ink-500: #676d73; /* 보조 텍스트 */
-  --color-ink-400: #83878d; /* 플레이스홀더 */
-  --color-line-200: #dddee1; /* 헤어라인·카드 보더 */
-  --color-line-100: #eeeff2;
-  --color-canvas-50: #f5f6f6; /* 섹션 배경 */
+  --color-ink-950: #070e1c;
+  --color-ink-900: #0b192f; /* BFS 네이비. 헤딩·본문·CTA 채움 */
+  --color-ink-700: #3a4557;
+  --color-ink-500: #647084; /* 보조 텍스트 */
+  --color-ink-400: #8b95a7; /* 플레이스홀더·비활성 */
+  --color-line-200: #dfe3ea; /* 카드 보더·구분선 */
+  --color-line-100: #edf0f4;
+  --color-canvas-50: #f5f7fa; /* 섹션 배경 */
+  --color-canvas-100: #eef1f6;
   --color-paper: #ffffff;
 
-  /* 액센트: 구두점으로만 (링크·선택·배지·포커스) */
-  --color-accent-600: #0175a3; /* 텍스트 대비용 */
-  --color-accent-500: #009fd9;
-  --color-accent-50: #e6f6fc;
+  --color-accent-700: #0d3aa6; /* BFS 블루(워드마크 원색). 텍스트 대비용 */
+  --color-accent-600: #1d4ed8;
+  --color-accent-500: #2f6bff; /* 글로우·그라디언트·포커스 */
+  --color-accent-400: #5b8cff;
+  --color-accent-100: #dbe6ff;
+  --color-accent-50: #eef3ff;
 
-  /* 상태 */
-  --color-ok-700: #136b4a;
-  --color-ok-600: #16855b; /* 승인·완료 */
-  --color-ok-50: #e8f5ee;
-  --color-warn-700: #8a6508;
-  --color-warn-500: #eab308; /* 확인 필요 */
-  --color-warn-50: #fdf6dc;
-  --color-danger-600: #dc2626;
-  --color-danger-50: #fdecec;
+  --color-night-900: #0b1426; /* 다크 섹션 배경 */
+  --color-night-800: #10203a;
+  --color-night-700: #1a2d4d;
 
-  /* 형태 */
-  --radius-control: 8px; /* 버튼·인풋 */
-  --radius-card: 12px; /* 카드 */
-  --radius-panel: 16px; /* 큰 패널·모달 */
-  --shadow-1: 0 1px 3px rgba(0, 0, 0, 0.1);
+  --color-ok-700: #0f6e4e;
+  --color-ok-600: #15895f;
+  --color-ok-50: #e6f6ee;
+  --color-warn-700: #8a5a06;
+  --color-warn-500: #e9a512;
+  --color-warn-50: #fff6dc;
+  --color-danger-600: #d92d2d;
+  --color-danger-500: #e5484d;
+  --color-danger-50: #fdeceb;
+
+  /* 형태 — control 12 / card 20 / panel 28 / pill */
+  --radius-control: 12px;
+  --radius-card: 20px;
+  --radius-panel: 28px;
+
+  --shadow-1: 0 1px 2px rgba(11, 25, 47, 0.06), 0 1px 3px rgba(11, 25, 47, 0.04);
+  --shadow-2: 0 4px 12px rgba(11, 25, 47, 0.08), 0 1px 3px rgba(11, 25, 47, 0.04);
+  --shadow-3: 0 20px 48px -12px rgba(11, 25, 47, 0.22);
+  --shadow-glow: 0 0 0 1px rgba(47, 107, 255, 0.35), 0 12px 40px -8px rgba(47, 107, 255, 0.45);
 }
 
-/* 타이포 스케일 — docs/08 4장. 클래스 하나로 크기·행간·웨이트를 함께 고정한다. */
+/* 타이포 스케일 — docs/11 3장. 클래스 하나로 크기·행간·웨이트를 함께 고정한다. */
 @utility text-display {
-  font-size: 48px;
-  line-height: 56px;
-  font-weight: 300;
-  letter-spacing: -0.02em;
+  font-size: 64px;
+  line-height: 1.05;
+  font-weight: 800;
+  letter-spacing: -0.035em;
+}
+@utility text-display-sm {
+  font-size: 40px;
+  line-height: 1.08;
+  font-weight: 800;
+  letter-spacing: -0.03em;
 }
 @utility text-h1 {
-  font-size: 40px;
-  line-height: 44px;
-  font-weight: 700;
-  letter-spacing: -0.02em;
+  font-size: 36px;
+  line-height: 1.15;
+  font-weight: 800;
+  letter-spacing: -0.025em;
 }
 @utility text-h2 {
-  font-size: 24px;
-  line-height: 32px;
+  font-size: 26px;
+  line-height: 1.25;
   font-weight: 700;
-  letter-spacing: -0.01em;
+  letter-spacing: -0.02em;
 }
 @utility text-h3 {
   font-size: 18px;
-  line-height: 24px;
-  font-weight: 600;
-  letter-spacing: -0.01em;
+  line-height: 1.35;
+  font-weight: 700;
+  letter-spacing: -0.015em;
 }
 @utility text-body {
   font-size: 16px;
-  line-height: 25.6px;
+  line-height: 1.65;
+  font-weight: 400;
+}
+@utility text-body-lg {
+  font-size: 18px;
+  line-height: 1.65;
   font-weight: 400;
 }
 @utility text-label {
   font-size: 14px;
-  line-height: 20px;
+  line-height: 1.45;
   font-weight: 500;
 }
 @utility text-caption {
   font-size: 12px;
-  line-height: 16px;
+  line-height: 1.4;
+  font-weight: 500;
+}
+@utility text-eyebrow {
+  font-size: 12px;
+  line-height: 1;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+/* 컴포넌트 유틸 — 버튼·인풋·칩·카드. 마크업마다 클래스 나열을 반복하지 않는다. */
+@utility btn-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border-radius: 9999px;
+  font-weight: 600;
+  white-space: nowrap;
+  background: var(--color-ink-900);
+  color: #fff;
+  transition:
+    background-color 160ms ease,
+    transform 160ms ease,
+    box-shadow 160ms ease;
+  &:hover {
+    background: var(--color-accent-700);
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-2);
+  }
+  &:active {
+    transform: translateY(0);
+  }
+  &:disabled {
+    opacity: 0.4;
+    transform: none;
+    box-shadow: none;
+  }
+}
+@utility btn-secondary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border-radius: 9999px;
+  font-weight: 600;
+  white-space: nowrap;
+  background: var(--color-paper);
+  color: var(--color-ink-900);
+  border: 1px solid var(--color-line-200);
+  transition:
+    border-color 160ms ease,
+    background-color 160ms ease,
+    transform 160ms ease;
+  &:hover {
+    border-color: var(--color-ink-400);
+    background: var(--color-canvas-50);
+    transform: translateY(-1px);
+  }
+  &:disabled {
+    opacity: 0.4;
+    transform: none;
+  }
+}
+@utility btn-accent {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border-radius: 9999px;
+  font-weight: 700;
+  white-space: nowrap;
+  background: linear-gradient(135deg, var(--color-accent-500), var(--color-accent-700));
+  color: #fff;
+  box-shadow: 0 8px 24px -8px rgba(47, 107, 255, 0.6);
+  transition:
+    transform 160ms ease,
+    box-shadow 160ms ease,
+    filter 160ms ease;
+  &:hover {
+    transform: translateY(-1px);
+    filter: brightness(1.06);
+    box-shadow: 0 12px 32px -8px rgba(47, 107, 255, 0.7);
+  }
+}
+@utility btn-ghost-light {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border-radius: 9999px;
+  font-weight: 600;
+  white-space: nowrap;
+  color: #fff;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  backdrop-filter: blur(8px);
+  transition:
+    background-color 160ms ease,
+    border-color 160ms ease;
+  &:hover {
+    background: rgba(255, 255, 255, 0.14);
+    border-color: rgba(255, 255, 255, 0.3);
+  }
+}
+@utility input {
+  width: 100%;
+  border-radius: var(--radius-control);
+  border: 1px solid var(--color-line-200);
+  background: var(--color-paper);
+  padding: 11px 14px;
+  font-size: 15px;
+  color: var(--color-ink-900);
+  outline: none;
+  transition:
+    border-color 160ms ease,
+    box-shadow 160ms ease;
+  &:hover {
+    border-color: var(--color-ink-400);
+  }
+  &:focus {
+    border-color: var(--color-accent-500);
+    box-shadow: 0 0 0 4px rgba(47, 107, 255, 0.14);
+  }
+  &:focus-visible {
+    outline: none;
+  }
+}
+@utility chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border-radius: 9999px;
+  padding: 5px 11px;
+  font-size: 12px;
+  line-height: 1.2;
+  font-weight: 600;
+  white-space: nowrap;
+}
+@utility card {
+  border-radius: var(--radius-card);
+  border: 1px solid var(--color-line-200);
+  background: var(--color-paper);
+  box-shadow: var(--shadow-1);
+}
+@utility card-hover {
+  transition:
+    transform 180ms ease,
+    box-shadow 180ms ease,
+    border-color 180ms ease;
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-2);
+    border-color: #cfd6e2;
+  }
+}
+@utility glass {
+  background: rgba(255, 255, 255, 0.72);
+  backdrop-filter: saturate(180%) blur(14px);
+  -webkit-backdrop-filter: saturate(180%) blur(14px);
+}
+@utility text-gradient {
+  background: linear-gradient(100deg, #7fb0ff 0%, #2f6bff 55%, #9fd1ff 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+/* 다크 섹션 배경: 네이비 + 블루 글로우 2개 + 미세 그리드 */
+@utility bg-night {
+  background-color: var(--color-night-900);
+  background-image:
+    radial-gradient(60% 50% at 15% 0%, rgba(47, 107, 255, 0.38) 0%, rgba(47, 107, 255, 0) 60%),
+    radial-gradient(50% 45% at 90% 90%, rgba(13, 58, 166, 0.45) 0%, rgba(13, 58, 166, 0) 60%),
+    linear-gradient(rgba(255, 255, 255, 0.035) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.035) 1px, transparent 1px);
+  background-size:
+    auto,
+    auto,
+    48px 48px,
+    48px 48px;
 }
 
 /* 다크 모드는 MVP 범위 밖이다. 시연 환경마다 색이 달라지는 것을 막으려고 밝은 톤으로 고정한다. */
 html {
   color-scheme: light;
+  scroll-behavior: smooth;
 }
 
 body {
@@ -95,14 +302,49 @@ body {
   color: var(--color-ink-900);
   background: var(--color-paper);
   -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
 }
 
 ::placeholder {
   color: var(--color-ink-400);
 }
 
-/* 포커스 링 — 액센트는 여기서만 면적을 가진다. */
+::selection {
+  background: var(--color-accent-100);
+  color: var(--color-ink-900);
+}
+
+/* 포커스 링 — 접근성. 액센트 블루 2px + 오프셋. */
 :where(input, textarea, select, button, a):focus-visible {
   outline: 2px solid var(--color-accent-500);
   outline-offset: 2px;
+}
+
+/* 등장 모션 — 히어로 1곳에서만 쓴다. 과한 모션 금지. */
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.rise {
+  animation: rise 600ms cubic-bezier(0.2, 0.7, 0.2, 1) both;
+}
+.rise-1 {
+  animation-delay: 80ms;
+}
+.rise-2 {
+  animation-delay: 160ms;
+}
+.rise-3 {
+  animation-delay: 240ms;
+}
+@media (prefers-reduced-motion: reduce) {
+  .rise {
+    animation: none;
+  }
 }

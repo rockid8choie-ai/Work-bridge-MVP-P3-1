@@ -42,12 +42,12 @@ export default async function PublicProfilePage({ params }: { params: Promise<{ 
   const isClient = user.role === "client";
 
   return (
-    <article className="max-w-xl">
+    <article className="card max-w-xl p-6 sm:p-8">
       <header className="flex items-center gap-4">
-        <div className="flex size-14 shrink-0 items-center justify-center rounded-card bg-line-100 text-xl font-bold text-ink-500">
+        <div className="flex size-14 shrink-0 items-center justify-center rounded-2xl bg-line-100 text-xl font-bold text-ink-500">
           {user.avatarUrl ? (
             // eslint-disable-next-line @next/next/no-img-element
-            <img src={user.avatarUrl} alt="" className="size-14 rounded-card object-cover" />
+            <img src={user.avatarUrl} alt="" className="size-14 rounded-2xl object-cover" />
           ) : (
             user.name.slice(0, 1)
           )}
@@ -62,7 +62,7 @@ export default async function PublicProfilePage({ params }: { params: Promise<{ 
       {user.bio && <p className="mt-5 whitespace-pre-wrap text-[15px] leading-relaxed text-ink-700">{user.bio}</p>}
 
       {isClient && user.clientProfile && (
-        <dl className="mt-6 grid grid-cols-2 gap-3 rounded-card bg-canvas-50 p-4 text-sm">
+        <dl className="mt-6 grid grid-cols-2 gap-3 rounded-2xl bg-canvas-50 p-4 text-sm">
           <Item label="건물">{user.clientProfile.buildingName}</Item>
           <Item label="유형">{user.clientProfile.buildingType}</Item>
           <Item label="지역">{user.clientProfile.region}</Item>
@@ -79,7 +79,7 @@ export default async function PublicProfilePage({ params }: { params: Promise<{ 
 
       {!isClient && user.vendorProfile && (
         <>
-          <dl className="mt-6 grid grid-cols-2 gap-3 rounded-card bg-canvas-50 p-4 text-sm">
+          <dl className="mt-6 grid grid-cols-2 gap-3 rounded-2xl bg-canvas-50 p-4 text-sm">
             <Item label="주요 분야">{user.vendorProfile.mainCategory}</Item>
             <Item label="경력">{user.vendorProfile.years}년</Item>
             <Item label="시간당 단가">{user.vendorProfile.hourlyRate.toLocaleString("ko-KR")}원</Item>
@@ -106,19 +106,19 @@ export default async function PublicProfilePage({ params }: { params: Promise<{ 
       )}
 
       {((isClient && !user.clientProfile) || (!isClient && !user.vendorProfile)) && (
-        <p className="mt-6 rounded-panel bg-canvas-50 px-4 py-6 text-center text-sm text-ink-400">
+        <p className="mt-6 rounded-2xl bg-canvas-50 px-4 py-6 text-center text-sm text-ink-400">
           아직 프로필을 작성하지 않았어요
         </p>
       )}
 
-      <section className="mt-8 rounded-card border border-dashed border-line-200 p-5">
+      <section className="mt-8 rounded-card border border-dashed border-line-200 bg-canvas-50 p-5">
         <h2 className="text-h3 text-ink-900">평점과 리뷰</h2>
         <p className="mt-1.5 text-sm text-ink-500">거래가 완료되면 상호 평가가 여기에 쌓입니다.</p>
         <p className="mt-2 text-xs font-semibold text-ink-400">스프린트 2에서 구현</p>
       </section>
 
       <Link href="/projects" className="mt-8 inline-block text-sm font-semibold text-ink-400">
-        ← 프로젝트
+        ← 공사 찾기
       </Link>
     </article>
   );

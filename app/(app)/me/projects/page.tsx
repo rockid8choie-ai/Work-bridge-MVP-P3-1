@@ -44,17 +44,17 @@ export default async function MyProjectsPage() {
     <div className="max-w-2xl">
       <div className="flex items-end justify-between">
         <div>
-          <h1 className="text-h2 text-ink-900">내 프로젝트</h1>
+          <h1 className="text-h2 text-ink-900">내 건물 공사</h1>
           <p className="mt-1 text-sm text-ink-500">전체 {projects.length}건</p>
         </div>
-        <Link href="/projects/new" className="rounded-control bg-ink-900 px-4 py-2.5 text-sm font-bold text-white">
-          공사 등록
+        <Link href="/projects/new" className="btn-primary px-4 py-2.5 text-sm">
+          공사 올리기
         </Link>
       </div>
 
       <ul className="mt-6 space-y-3">
         {projects.length === 0 && (
-          <li className="rounded-panel bg-canvas-50 px-4 py-12 text-center text-sm text-ink-400">
+          <li className="card px-4 py-14 text-center text-sm text-ink-400">
             아직 등록한 공사가 없어요
           </li>
         )}
@@ -62,7 +62,7 @@ export default async function MyProjectsPage() {
         {projects.map((p) => {
           const accepted = p.applications[0]?.freelancer.name;
           return (
-            <li key={p.id} className="rounded-card border border-line-200 p-4">
+            <li key={p.id} className="card p-4">
               <div className="flex items-start justify-between gap-3">
                 <div className="min-w-0">
                   <Link href={`/projects/${p.id}`} className="font-bold leading-snug text-ink-900">

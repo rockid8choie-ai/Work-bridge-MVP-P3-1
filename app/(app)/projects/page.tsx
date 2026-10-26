@@ -66,56 +66,56 @@ export default async function ProjectsPage({
     <div>
       <div className="flex items-end justify-between">
         <div>
-          <h1 className="text-h2 text-ink-900">프로젝트</h1>
+          <h1 className="text-h2 text-ink-900">공사 찾기</h1>
           <p className="mt-1 text-sm text-ink-500">
             {hasFilter ? `조건에 맞는 공사 ${total}건` : `전체 ${total}건`}
           </p>
         </div>
         {user?.role === "client" && (
-          <Link href="/projects/new" className="rounded-control bg-ink-900 px-4 py-2.5 text-sm font-bold text-white">
-            공사 등록
+          <Link href="/projects/new" className="btn-primary px-4 py-2.5 text-sm">
+            공사 올리기
           </Link>
         )}
       </div>
 
-      <form method="get" action="/projects" className="mt-5 rounded-panel bg-canvas-50 p-4">
+      <form method="get" action="/projects" className="card mt-6 p-4">
         <div className="flex gap-2">
           <input
             name="q"
             defaultValue={query.q ?? ""}
             placeholder="제목이나 공사 내용으로 검색"
-            className="min-w-0 flex-1 rounded-control border border-line-200 bg-paper px-3 py-2.5 text-sm outline-none focus:border-accent-500"
+            className="input min-w-0 flex-1"
           />
-          <button type="submit" className="rounded-control bg-ink-900 px-4 py-2.5 text-sm font-bold text-white">
+          <button type="submit" className="btn-primary px-5 py-2.5 text-sm">
             검색
           </button>
         </div>
         <div className="mt-2.5 grid grid-cols-2 gap-2 sm:grid-cols-5">
-          <select name="category" defaultValue={query.category ?? ""} className="rounded-control border border-line-200 bg-paper px-2.5 py-2 text-[13px]">
+          <select name="category" defaultValue={query.category ?? ""} className="input px-3 py-2 text-[13px]">
             <option value="">전체 카테고리</option>
             {PROJECT_CATEGORIES.map((c) => (
               <option key={c} value={c}>{c}</option>
             ))}
           </select>
-          <select name="skill" defaultValue={query.skill ?? ""} className="rounded-control border border-line-200 bg-paper px-2.5 py-2 text-[13px]">
+          <select name="skill" defaultValue={query.skill ?? ""} className="input px-3 py-2 text-[13px]">
             <option value="">전체 전문분야</option>
             {skills.map((s) => (
               <option key={s.name} value={s.name}>{s.name}</option>
             ))}
           </select>
-          <select name="status" defaultValue={query.status ?? ""} className="rounded-control border border-line-200 bg-paper px-2.5 py-2 text-[13px]">
+          <select name="status" defaultValue={query.status ?? ""} className="input px-3 py-2 text-[13px]">
             {STATUSES.map((s) => (
               <option key={s.value} value={s.value}>{s.label}</option>
             ))}
           </select>
-          <select name="budgetMax" defaultValue={query.budgetMax ? String(query.budgetMax) : ""} className="rounded-control border border-line-200 bg-paper px-2.5 py-2 text-[13px]">
+          <select name="budgetMax" defaultValue={query.budgetMax ? String(query.budgetMax) : ""} className="input px-3 py-2 text-[13px]">
             <option value="">예산 전체</option>
             <option value="1000000">100만원 이하</option>
             <option value="3000000">300만원 이하</option>
             <option value="5000000">500만원 이하</option>
             <option value="10000000">1,000만원 이하</option>
           </select>
-          <select name="sort" defaultValue={query.sort} className="rounded-control border border-line-200 bg-paper px-2.5 py-2 text-[13px]">
+          <select name="sort" defaultValue={query.sort} className="input px-3 py-2 text-[13px]">
             {SORTS.map((s) => (
               <option key={s.value} value={s.value}>{s.label}</option>
             ))}
@@ -128,9 +128,9 @@ export default async function ProjectsPage({
         )}
       </form>
 
-      <div className="mt-5 space-y-3">
+      <div className="mt-6 grid gap-4 sm:grid-cols-2">
         {rows.length === 0 && (
-          <p className="rounded-panel bg-canvas-50 px-4 py-12 text-center text-sm text-ink-400">
+          <p className="card px-4 py-14 text-center text-sm text-ink-400 sm:col-span-2">
             {hasFilter ? "조건에 맞는 공사가 없어요" : "아직 등록된 공사가 없어요"}
           </p>
         )}
@@ -158,8 +158,8 @@ export default async function ProjectsPage({
             <Link
               key={n}
               href={pageHref(n)}
-              className={`rounded-control px-3 py-1.5 text-sm font-semibold ${
-                n === query.page ? "bg-ink-900 text-white" : "text-ink-500 hover:bg-line-100"
+              className={`rounded-full px-3.5 py-1.5 text-sm font-semibold ${
+                n === query.page ? "bg-ink-900 text-white" : "text-ink-500 hover:bg-canvas-100"
               }`}
             >
               {n}

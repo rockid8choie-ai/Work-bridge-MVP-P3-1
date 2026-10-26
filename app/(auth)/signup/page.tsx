@@ -99,7 +99,7 @@ function SignupForm() {
       <button
         type="submit"
         disabled={busy}
-        className="w-full rounded-control bg-ink-900 py-3 text-sm font-bold text-white transition-colors hover:bg-ink-700 disabled:opacity-40"
+        className="btn-primary w-full py-3 text-sm"
       >
         {busy ? "가입 중…" : "가입하기"}
       </button>
@@ -137,7 +137,7 @@ function Field({
         type={type}
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        className="mt-1.5 w-full rounded-control border border-line-200 px-3 py-2.5 text-sm outline-none transition-colors focus:border-accent-500 focus-visible:outline-none"
+        className="input mt-1.5"
       />
     </label>
   );
