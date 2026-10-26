@@ -2,6 +2,7 @@ import Link from "next/link";
 import { getCurrentUser } from "@/lib/server/auth";
 import { prisma } from "@/lib/server/db";
 import { PROJECT_CATEGORIES } from "@/lib/shared/labels";
+import Logo from "@/components/Logo";
 
 /**
  * 랜딩. 로그인 상태에 따라 헤더가 다르고(B-30),
@@ -18,9 +19,7 @@ export default async function HomePage() {
     <main className="flex flex-1 flex-col">
       <header className="border-b border-line-100">
         <div className="mx-auto flex w-full max-w-4xl items-center justify-between px-5 py-3.5">
-          <span className="text-base font-bold tracking-tight text-ink-900">
-            Work<span className="text-accent-600">Bridge</span>
-          </span>
+          <Logo />
           <nav className="flex items-center gap-4 text-label">
             {user ? (
               <>
@@ -65,22 +64,22 @@ export default async function HomePage() {
       <section className="mx-auto w-full max-w-4xl flex-1 px-5 py-16 sm:py-20">
         <p className="text-label text-ink-500">가격을 먼저 합의하지 않습니다.</p>
         <h1 className="mt-3 text-3xl font-light leading-tight tracking-tight text-ink-900 sm:text-display">
-          범위를 먼저 합의합니다.
+          ‘계약 범위’를 먼저 합의합니다.
         </h1>
         <p className="mt-5 max-w-xl text-body text-ink-700">
-          공사 분쟁의 원인은 가격이 아니라, 무엇을 하기로 했는지 적어 둔 문서가 없다는 것입니다. WorkBridge는
-          공사를 단위 공정으로 먼저 쪼개고, 그 항목이 그대로 계약 범위가 되고 작업 단계가 되고 정산 단위가 됩니다.
+          공사 다툼은 대부분 가격 때문이 아닙니다. “무엇을 해주기로 했는지”를 적어 두지 않아서 생깁니다. BFS Working
+          Bridge는 공사를 작업 항목으로 나눠 적고, 그 목록대로 계약하고 그 목록대로 정산합니다.
         </p>
 
         <form method="get" action="/projects" className="mt-10 max-w-2xl">
           <label htmlFor="hero-q" className="sr-only">
-            어디가, 어떻게 문제인가요?
+            어떤 문제가 있나요?
           </label>
           <div className="flex items-center gap-2 rounded-control border border-line-200 bg-paper p-1.5 shadow-1 focus-within:border-accent-500">
             <input
               id="hero-q"
               name="q"
-              placeholder="어디가, 어떻게 문제인가요? 예: 3층 화장실 천장에서 물이 떨어져요"
+              placeholder="어떤 문제가 있나요? 예: 3층 화장실 천장에서 물이 새요"
               className="h-11 min-w-0 flex-1 bg-transparent px-3 text-body text-ink-900 outline-none focus-visible:outline-none"
             />
             <button
