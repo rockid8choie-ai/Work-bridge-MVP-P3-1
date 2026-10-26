@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { getCurrentUser } from "@/lib/server/auth";
 import { prisma } from "@/lib/server/db";
 import LogoutButton from "@/components/LogoutButton";
+import Logo from "@/components/Logo";
 
 /**
  * 로그인 후 공통 헤더. 역할별로 메뉴가 다르고(B-30), 미확인 알림 수가 즉시 보인다 (B-25).
@@ -29,9 +30,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
     <div className="flex min-h-dvh flex-col">
       <header className="border-b border-line-200">
         <div className="mx-auto flex w-full max-w-4xl items-center justify-between px-5 py-3.5">
-          <Link href="/" className="text-base font-bold tracking-tight text-ink-900">
-            Work<span className="text-accent-600">Bridge</span>
-          </Link>
+          <Logo />
           <nav className="flex items-center gap-4 text-sm">
             {menu.map((m) => (
               <Link key={m.href} href={m.href} className="font-semibold text-ink-700">
