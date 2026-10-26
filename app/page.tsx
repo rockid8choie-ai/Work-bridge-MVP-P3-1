@@ -6,6 +6,9 @@ import { PROJECT_CATEGORIES } from "@/lib/shared/labels";
 import Logo from "@/components/Logo";
 import CategoryIcon from "@/components/CategoryIcon";
 import ProjectCard from "@/components/ProjectCard";
+import HeroVisual from "@/components/HeroVisual";
+import Skyline from "@/components/Skyline";
+import Counter from "@/components/Counter";
 
 /**
  * 랜딩 — docs/11 디자인 시스템 6장 "홈" 구성.
@@ -72,23 +75,28 @@ export default async function HomePage() {
 
       {/* 히어로 */}
       <section className="bg-night relative overflow-hidden text-white">
-        <div className="mx-auto w-full max-w-6xl px-5 pb-20 pt-32 sm:px-8 sm:pb-28 sm:pt-40">
+        {/* 움직이는 글로우 2개 + 하단 스카이라인 */}
+        <div className="glow-a pointer-events-none absolute -left-40 -top-40 size-[640px] rounded-full bg-accent-500/30 blur-[120px]" />
+        <div className="glow-b pointer-events-none absolute -right-32 top-1/3 size-[520px] rounded-full bg-accent-700/40 blur-[120px]" />
+        <Skyline className="absolute inset-x-0 bottom-0 h-[180px] opacity-80 sm:h-[240px]" />
+
+        <div className="relative mx-auto grid w-full max-w-6xl gap-12 px-5 pb-40 pt-32 sm:px-8 sm:pb-44 sm:pt-40 lg:grid-cols-[1.05fr_0.95fr] lg:items-center lg:pb-36">
+          <div>
           <p className="rise inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/8 px-3.5 py-1.5 text-[12px] font-semibold text-white/85 backdrop-blur">
             <span className="size-1.5 rounded-full bg-accent-400" />
             건물 유지보수 외주 매칭 · 범위 먼저 계약
           </p>
-          <h1 className="rise rise-1 mt-6 max-w-4xl text-display-sm sm:text-display">
+          <h1 className="rise rise-1 mt-6 break-keep text-display-sm sm:text-display lg:text-[58px] lg:leading-[1.06]">
             가격보다 먼저,
             <br />
             <span className="text-gradient">‘계약 범위’</span>를 합의합니다.
           </h1>
-          <p className="rise rise-2 mt-6 max-w-3xl text-body text-white/70 sm:text-body-lg">
-            공사 다툼은 대부분 가격 때문이 아닙니다. “무엇을 해주기로 했는지”를 적어 두지 않아서 생깁니다.{" "}
-            <br className="hidden sm:block" />
+          <p className="rise rise-2 mt-6 max-w-xl text-body text-white/70 sm:text-body-lg">
+            공사 다툼은 대부분 가격 때문이 아닙니다. “무엇을 해주기로 했는지”를 적어 두지 않아서 생깁니다.
             BFS Working Bridge는 공사를 작업 항목으로 나눠 적고, 그 목록대로 계약하고 그 목록대로 정산합니다.
           </p>
 
-          <form method="get" action="/projects" className="rise rise-3 mt-10 max-w-3xl">
+          <form method="get" action="/projects" className="rise rise-3 mt-10 max-w-xl">
             <label htmlFor="hero-q" className="sr-only">
               어떤 문제가 있나요?
             </label>
@@ -130,17 +138,29 @@ export default async function HomePage() {
             ))}
           </div>
 
-          <div className="mt-14 flex flex-wrap items-center gap-x-8 gap-y-3 border-t border-white/10 pt-6 text-[13px] text-white/55">
-            <span>
-              <strong className="font-semibold text-white/85">95.3%</strong> 공사 분쟁은 가격이 아닌 범위 문제
-            </span>
-            <span>
-              <strong className="font-semibold text-white/85">10건 중 6건</strong> 합의조차 못 하고 끝남
-            </span>
-            <span className="text-white/40">출처 한국소비자원 2026.10</span>
+          </div>
+
+          <div className="rise rise-3 hidden lg:block">
+            <HeroVisual />
           </div>
         </div>
       </section>
+
+      {/* 흐르는 띠 */}
+      <div className="overflow-hidden border-b border-line-100 bg-paper py-4">
+        <div className="marquee flex w-max gap-10 whitespace-nowrap text-[13px] font-semibold text-ink-500">
+          {[0, 1].map((k) => (
+            <div key={k} className="flex gap-10">
+              {TICKER.map((t, i) => (
+                <span key={`${k}-${i}`} className="inline-flex items-center gap-2.5">
+                  <span className="size-1.5 rounded-full bg-accent-500" />
+                  {t}
+                </span>
+              ))}
+            </div>
+          ))}
+        </div>
+      </div>
 
       {/* 작동 방식: 벤토 3단계 */}
       <section className="mx-auto w-full max-w-6xl px-5 py-20 sm:px-8 sm:py-28">
@@ -202,10 +222,66 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* 비교 + 숫자 */}
+      {/* 카테고리 타일 */}
       <section className="bg-canvas-50">
         <div className="mx-auto w-full max-w-6xl px-5 py-20 sm:px-8 sm:py-28">
-          <p className="text-eyebrow text-accent-700">Why scope first</p>
+          <p className="text-eyebrow text-accent-700">Categories</p>
+          <h2 className="mt-3 text-h1 text-ink-900">건물에서 생기는 거의 모든 일.</h2>
+          <p className="mt-3 max-w-2xl text-body text-ink-500">카테고리를 고르면 모집 중인 공사가 바로 보입니다.</p>
+          <div className="mt-10 grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
+            {PROJECT_CATEGORIES.map((c) => (
+              <Link key={c} href={`/projects?category=${encodeURIComponent(c)}`} className="tile group p-5 sm:p-6">
+                <span className="flex size-11 items-center justify-center rounded-2xl bg-gradient-to-br from-accent-500 to-accent-700 text-white shadow-2 transition-transform group-hover:scale-110">
+                  <CategoryIcon name={c} className="size-5" />
+                </span>
+                <p className="mt-4 text-[16px] font-bold text-ink-900">{c}</p>
+                <p className="mt-1 text-[13px] leading-snug text-ink-500">{CATEGORY_HINT[c]}</p>
+              </Link>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* 숫자 밴드 */}
+      <section className="bg-night relative overflow-hidden text-white">
+        <div className="glow-b pointer-events-none absolute -left-20 top-0 size-[480px] rounded-full bg-accent-500/25 blur-[110px]" />
+        <div className="relative mx-auto w-full max-w-6xl px-5 py-16 sm:px-8 sm:py-20">
+          <p className="text-eyebrow text-accent-400">Why scope first</p>
+          <dl className="mt-6 grid gap-10 sm:grid-cols-3">
+            <div>
+              <dt className="text-[56px] font-extrabold leading-none tracking-tighter sm:text-[72px]">
+                <Counter value={95.3} decimals={1} suffix="%" className="text-gradient" />
+              </dt>
+              <dd className="mt-3 text-[15px] font-semibold text-white/90">가격이 아닌 분쟁</dd>
+              <dd className="mt-1 text-[13px] leading-relaxed text-white/55">
+                인테리어 분쟁 2,243건 중 하자보수·계약불이행 등 범위 관련 비중
+              </dd>
+            </div>
+            <div>
+              <dt className="text-[56px] font-extrabold leading-none tracking-tighter sm:text-[72px]">
+                <Counter value={64.2} decimals={1} suffix="%" className="text-gradient" />
+              </dt>
+              <dd className="mt-3 text-[15px] font-semibold text-white/90">합의 실패율</dd>
+              <dd className="mt-1 text-[13px] leading-relaxed text-white/55">10건 중 6건은 합의조차 되지 않고 끝난다</dd>
+            </div>
+            <div>
+              <dt className="text-[56px] font-extrabold leading-none tracking-tighter sm:text-[72px]">
+                <Counter value={97} suffix="%" className="text-gradient" />
+              </dt>
+              <dd className="mt-3 text-[15px] font-semibold text-white/90">비주거 비중</dd>
+              <dd className="mt-1 text-[13px] leading-relaxed text-white/55">
+                국내 리모델링 착공면적 중 비주거 건축물이 차지하는 비율
+              </dd>
+            </div>
+          </dl>
+          <p className="mt-8 text-caption text-white/35">출처: 한국소비자원(2026.10) · 한국건설산업연구원(2024.6)</p>
+        </div>
+      </section>
+
+      {/* 비교 */}
+      <section className="bg-paper">
+        <div className="mx-auto w-full max-w-6xl px-5 py-20 sm:px-8 sm:py-28">
+          <p className="text-eyebrow text-accent-700">Compare</p>
           <h2 className="mt-3 text-h1 text-ink-900">입찰은 가격을 정합니다. 우리는 범위를 정합니다.</h2>
           <div className="mt-10 grid gap-4 md:grid-cols-2">
             <div className="card p-7">
@@ -230,18 +306,12 @@ export default async function HomePage() {
               </ul>
             </div>
           </div>
-          <dl className="mt-12 grid gap-4 sm:grid-cols-3">
-            <Stat value="95.3%" label="가격이 아닌 분쟁" note="인테리어 분쟁 2,243건 중 하자보수·계약불이행 등 범위 관련 비중" />
-            <Stat value="64.2%" label="합의 실패율" note="10건 중 6건은 합의조차 되지 않고 끝난다" />
-            <Stat value="97%" label="비주거 비중" note="국내 리모델링 착공면적 중 비주거 건축물이 차지하는 비율" />
-          </dl>
-          <p className="mt-5 text-caption text-ink-400">출처: 한국소비자원(2026.10) · 한국건설산업연구원(2024.6)</p>
         </div>
       </section>
 
       {/* 모집 중인 공사 */}
       {latest.length > 0 && (
-        <section className="mx-auto w-full max-w-6xl px-5 py-20 sm:px-8 sm:py-28">
+        <section className="mx-auto w-full max-w-6xl border-t border-line-100 px-5 py-20 sm:px-8 sm:py-28">
           <div className="flex items-end justify-between gap-4">
             <div>
               <p className="text-eyebrow text-accent-700">Open now</p>
@@ -318,6 +388,31 @@ export default async function HomePage() {
   );
 }
 
+const TICKER = [
+  "누수·방수",
+  "전기·조명",
+  "설비·배관",
+  "외벽·도장",
+  "인테리어·목공",
+  "소방·안전",
+  "공조·환기",
+  "범위 먼저 계약",
+  "항목별 단가",
+  "단계별 정산",
+  "변경은 기록으로",
+];
+
+const CATEGORY_HINT: Record<string, string> = {
+  "누수·방수": "천장 얼룩, 옥상 균열, 외벽 침수",
+  "전기·조명": "차단기 트립, 조명 교체, 배선",
+  "설비·배관": "배관 막힘, 보일러, 급배수",
+  "외벽·도장": "외벽 크랙, 도장, 실링",
+  "인테리어·목공": "칸막이, 바닥, 문·창호",
+  "소방·안전": "감지기, 소화기, 피난 설비",
+  "공조·환기": "에어컨, 환기 덕트, 공조기",
+  기타: "그 밖의 건물 유지보수",
+};
+
 const MILESTONES = [
   { label: "1단계 · 탐지·철거", pct: 100, state: "지급 완료" },
   { label: "2단계 · 방수 보수", pct: 60, state: "작업 중" },
@@ -350,12 +445,3 @@ function Row({ children, bad = false }: { children: React.ReactNode; bad?: boole
   );
 }
 
-function Stat({ value, label, note }: { value: string; label: string; note: string }) {
-  return (
-    <div className="card p-6">
-      <dt className="text-display-sm text-ink-900">{value}</dt>
-      <dd className="mt-1 text-label font-semibold text-ink-900">{label}</dd>
-      <dd className="mt-1 text-caption leading-relaxed text-ink-500">{note}</dd>
-    </div>
-  );
-}

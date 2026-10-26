@@ -320,6 +320,105 @@ body {
   outline-offset: 2px;
 }
 
+/* 움직이는 배경 — 히어로의 글로우 2개가 아주 천천히 떠다닌다 (20s). */
+@keyframes drift-a {
+  0% {
+    transform: translate(0, 0) scale(1);
+  }
+  50% {
+    transform: translate(60px, 40px) scale(1.12);
+  }
+  100% {
+    transform: translate(0, 0) scale(1);
+  }
+}
+@keyframes drift-b {
+  0% {
+    transform: translate(0, 0) scale(1);
+  }
+  50% {
+    transform: translate(-50px, -30px) scale(1.08);
+  }
+  100% {
+    transform: translate(0, 0) scale(1);
+  }
+}
+.glow-a {
+  animation: drift-a 20s ease-in-out infinite;
+}
+.glow-b {
+  animation: drift-b 24s ease-in-out infinite;
+}
+
+/* 떠 있는 제품 카드 — 히어로 모형 3장. 서로 다른 주기로 위아래 6~8px. */
+@keyframes float {
+  0%,
+  100% {
+    transform: translateY(0) rotate(var(--tilt, 0deg));
+  }
+  50% {
+    transform: translateY(-8px) rotate(var(--tilt, 0deg));
+  }
+}
+.float-a {
+  --tilt: -1.5deg;
+  animation: float 7s ease-in-out infinite;
+}
+.float-b {
+  --tilt: 2deg;
+  animation: float 6s ease-in-out 0.8s infinite;
+}
+.float-c {
+  --tilt: 1deg;
+  animation: float 8s ease-in-out 1.6s infinite;
+}
+
+/* 흐르는 띠 — 카테고리·약속 문구. 같은 내용을 두 번 이어 붙여 끊김 없이 돈다. */
+@keyframes marquee {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+.marquee {
+  animation: marquee 36s linear infinite;
+}
+.marquee:hover {
+  animation-play-state: paused;
+}
+
+/* 카테고리 타일 호버 — 그라디언트 보더가 켜진다. */
+@utility tile {
+  position: relative;
+  border-radius: var(--radius-card);
+  border: 1px solid var(--color-line-200);
+  background: var(--color-paper);
+  transition:
+    transform 180ms ease,
+    box-shadow 180ms ease,
+    border-color 180ms ease;
+  &:hover {
+    transform: translateY(-3px);
+    border-color: transparent;
+    box-shadow:
+      0 0 0 2px var(--color-accent-500),
+      var(--shadow-2);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .glow-a,
+  .glow-b,
+  .float-a,
+  .float-b,
+  .float-c,
+  .marquee {
+    animation: none;
+  }
+}
+
 /* 등장 모션 — 히어로 1곳에서만 쓴다. 과한 모션 금지. */
 @keyframes rise {
   from {
