@@ -86,8 +86,8 @@ export default function NewProjectPage() {
   };
 
   return (
-    <div className="max-w-xl">
-      <h1 className="text-h2 text-ink-900">공사 등록</h1>
+    <div className="card max-w-xl p-6 sm:p-8">
+      <h1 className="text-h2 text-ink-900">공사 올리기</h1>
 
       <ol className="mt-5 flex gap-2">
         {STEPS.map((label, i) => (
@@ -211,7 +211,7 @@ export default function NewProjectPage() {
             <button
               type="button"
               onClick={() => setStep((s) => s - 1)}
-              className="rounded-control border border-line-200 px-5 py-3 text-sm font-semibold text-ink-900"
+              className="btn-secondary px-5 py-3 text-sm"
             >
               이전
             </button>
@@ -220,7 +220,7 @@ export default function NewProjectPage() {
             type="button"
             disabled={!canNext || busy}
             onClick={() => (step < 2 ? setStep((s) => s + 1) : submit())}
-            className="flex-1 rounded-control bg-ink-900 py-3 text-sm font-bold text-white transition-colors hover:bg-ink-700 disabled:opacity-40"
+            className="btn-primary flex-1 py-3 text-sm"
           >
             {busy ? "등록 중…" : step < 2 ? "다음" : "등록하기"}
           </button>

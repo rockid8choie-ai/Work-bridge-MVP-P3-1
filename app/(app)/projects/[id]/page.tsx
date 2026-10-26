@@ -57,9 +57,9 @@ export default async function ProjectDetailPage({ params }: { params: Promise<{ 
   ]);
 
   return (
-    <article className="max-w-2xl">
+    <article className="card max-w-3xl p-6 sm:p-8">
       <Link href="/projects" className="text-sm font-semibold text-ink-400">
-        ← 프로젝트
+        ← 공사 찾기
       </Link>
 
       <header className="mt-4">
@@ -87,7 +87,7 @@ export default async function ProjectDetailPage({ params }: { params: Promise<{ 
         </p>
       </header>
 
-      <dl className="mt-6 grid grid-cols-3 gap-3 rounded-card bg-canvas-50 p-4 text-sm">
+      <dl className="mt-6 grid grid-cols-3 gap-3 rounded-2xl bg-canvas-50 p-4 text-sm">
         <div>
           <dt className="text-caption text-ink-400">예산</dt>
           <dd className="mt-0.5 font-bold text-ink-900">{won(project.budget)}</dd>
@@ -126,7 +126,7 @@ export default async function ProjectDetailPage({ params }: { params: Promise<{ 
             dealStatus={project.dealStatus}
             pendingCount={pendingCount}
           />
-          <section className="mt-6 rounded-card border border-dashed border-line-200 p-5">
+          <section className="mt-6 rounded-card border border-dashed border-line-200 bg-canvas-50 p-5">
             <h2 className="text-h3 text-ink-900">AI 공정 분해</h2>
             <p className="mt-1.5 text-sm leading-relaxed text-ink-500">
               공사 내용을 단위 공정으로 쪼개 항목별 단가를 산정합니다. 그 결과가 그대로 계약 범위 조항이자 작업
@@ -138,7 +138,7 @@ export default async function ProjectDetailPage({ params }: { params: Promise<{ 
       )}
 
       {isFreelancer && myApplication && (
-        <section className="mt-8 rounded-card border border-line-200 p-5">
+        <section className="mt-8 card p-5">
           <div className="flex items-center justify-between">
             <h2 className="text-h3 text-ink-900">내 지원</h2>
             <span className={`rounded-full px-2.5 py-1 text-[11px] font-semibold ${APPLICATION_STYLE[myApplication.status]}`}>
@@ -159,7 +159,7 @@ export default async function ProjectDetailPage({ params }: { params: Promise<{ 
       )}
 
       {isFreelancer && !myApplication && project.recruitStatus !== "open" && (
-        <p className="mt-8 rounded-panel bg-canvas-50 px-4 py-5 text-center text-sm text-ink-500">
+        <p className="mt-8 rounded-2xl bg-canvas-50 px-4 py-5 text-center text-sm text-ink-500">
           {project.recruitStatus === "scheduled" ? "아직 모집 전이에요" : "모집이 마감된 공사예요"}
         </p>
       )}

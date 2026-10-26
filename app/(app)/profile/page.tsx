@@ -104,7 +104,7 @@ function ProfileForm() {
   if (!role) return <p className="text-sm text-ink-400">불러오는 중…</p>;
 
   return (
-    <form onSubmit={submit} className="max-w-md space-y-5">
+    <form onSubmit={submit} className="card max-w-md space-y-5 p-6 sm:p-8">
       <div>
         <h1 className="text-h2 text-ink-900">내 프로필</h1>
         {next && (
@@ -243,7 +243,7 @@ function ProfileForm() {
       <button
         type="submit"
         disabled={busy}
-        className="w-full rounded-control bg-ink-900 py-3 text-sm font-bold text-white transition-colors hover:bg-ink-700 disabled:opacity-40"
+        className="btn-primary w-full py-3 text-sm"
       >
         {busy ? "저장 중…" : next ? "저장하고 계속하기" : "저장"}
       </button>

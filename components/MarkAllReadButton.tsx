@@ -22,7 +22,7 @@ export default function MarkAllReadButton({ disabled }: { disabled: boolean }) {
           setBusy(false);
         }
       }}
-      className="rounded-control border border-line-200 px-3.5 py-2 text-sm font-semibold text-ink-900 disabled:opacity-40"
+      className="btn-secondary px-3.5 py-2 text-sm"
     >
       모두 읽음
     </button>

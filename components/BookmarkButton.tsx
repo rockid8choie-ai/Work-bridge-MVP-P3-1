@@ -29,7 +29,7 @@ export default function BookmarkButton({ projectId, initial }: { projectId: stri
         on ? "border-warn-500 bg-warn-50 text-warn-700" : "border-line-200 text-ink-700 hover:border-ink-400"
       }`}
     >
-      {on ? "★ 북마크됨" : "☆ 북마크"}
+      {on ? "★ 찜함" : "☆ 찜하기"}
     </button>
   );
 }

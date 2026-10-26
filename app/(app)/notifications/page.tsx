@@ -40,7 +40,7 @@ export default async function NotificationsPage() {
         <MarkAllReadButton disabled={unread === 0} />
       </div>
 
-      <ul className="mt-6 divide-y divide-line-100 rounded-card border border-line-200">
+      <ul className="card mt-6 divide-y divide-line-100 overflow-hidden">
         {notifications.length === 0 && (
           <li className="px-4 py-12 text-center text-sm text-ink-400">아직 알림이 없어요</li>
         )}

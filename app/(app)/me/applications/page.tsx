@@ -55,7 +55,7 @@ export default async function MyApplicationsPage() {
 
       <ul className="mt-6 space-y-3">
         {applications.length === 0 && (
-          <li className="rounded-panel bg-canvas-50 px-4 py-12 text-center text-sm text-ink-400">
+          <li className="card px-4 py-14 text-center text-sm text-ink-400">
             아직 지원한 공사가 없어요.{" "}
             <Link href="/projects" className="font-semibold text-accent-600">
               공사 찾아보기
@@ -66,7 +66,7 @@ export default async function MyApplicationsPage() {
         {applications.map((a) => {
           const gone = Boolean(a.project.deletedAt);
           return (
-            <li key={a.id} className="rounded-card border border-line-200 p-4">
+            <li key={a.id} className="card p-4">
               <div className="flex items-start justify-between gap-3">
                 <div className="min-w-0">
                   {gone ? (

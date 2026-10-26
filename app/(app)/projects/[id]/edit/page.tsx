@@ -85,9 +85,9 @@ export default function EditProjectPage() {
   if (!loaded && !error) return <p className="py-10 text-center text-sm text-ink-400">불러오는 중…</p>;
 
   return (
-    <div className="max-w-xl">
+    <div className="card max-w-xl p-6 sm:p-8">
       <Link href={`/projects/${id}`} className="text-sm font-semibold text-ink-400">
-        ← 프로젝트
+        ← 공사 찾기
       </Link>
       <h1 className="mt-3 text-h2 text-ink-900">공사 수정</h1>
 
@@ -170,7 +170,7 @@ export default function EditProjectPage() {
           type="button"
           disabled={!canSave || busy}
           onClick={save}
-          className="w-full rounded-control bg-ink-900 py-3 text-sm font-bold text-white transition-colors hover:bg-ink-700 disabled:opacity-40"
+          className="btn-primary w-full py-3 text-sm"
         >
           {busy ? "저장 중…" : "저장"}
         </button>

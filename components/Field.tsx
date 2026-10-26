@@ -8,7 +8,7 @@ export function Label({ children, hint }: { children: React.ReactNode; hint?: st
 }
 
 export const inputClass =
-  "w-full rounded-control border border-line-200 px-3 py-2.5 text-sm outline-none transition-colors focus:border-accent-500 focus-visible:outline-none";
+  "input";
 
 export function ErrorText({ children }: { children: React.ReactNode }) {
   if (!children) return null;

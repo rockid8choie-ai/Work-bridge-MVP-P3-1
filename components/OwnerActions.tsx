@@ -49,25 +49,25 @@ export default function OwnerActions({ projectId, recruitStatus, dealStatus, pen
 
   const LABEL = {
     close: `모집을 마감할까요? 검토중인 지원 ${pendingCount}건은 모두 거절되고 지원자에게 알림이 갑니다.`,
-    cancel: "프로젝트를 취소할까요? 지원자 전원에게 취소 알림이 갑니다. 계약 체결 뒤에는 취소할 수 없습니다.",
-    delete: "프로젝트를 삭제할까요? 목록에서 사라지며 되돌릴 수 없습니다.",
+    cancel: "공사를 취소할까요? 지원자 전원에게 취소 알림이 갑니다. 계약 체결 뒤에는 취소할 수 없습니다.",
+    delete: "공사를 삭제할까요? 목록에서 사라지며 되돌릴 수 없습니다.",
   } as const;
 
   return (
-    <section className="mt-8 rounded-card border border-line-200 p-5">
-      <h2 className="text-h3 text-ink-900">내 프로젝트 관리</h2>
+    <section className="mt-8 card p-5">
+      <h2 className="text-h3 text-ink-900">이 공사 관리</h2>
 
       <div className="mt-3 flex flex-wrap gap-2">
         <Link
           href={`/projects/${projectId}/applicants`}
-          className="rounded-control bg-ink-900 px-4 py-2 text-sm font-bold text-white"
+          className="btn-primary px-4 py-2 text-sm"
         >
           지원자 관리{pendingCount > 0 && ` (${pendingCount})`}
         </Link>
         {canEdit && (
           <Link
             href={`/projects/${projectId}/edit`}
-            className="rounded-control border border-line-200 px-4 py-2 text-sm font-semibold text-ink-900"
+            className="btn-secondary px-4 py-2 text-sm"
           >
             수정
           </Link>
@@ -76,7 +76,7 @@ export default function OwnerActions({ projectId, recruitStatus, dealStatus, pen
           <button
             type="button"
             onClick={() => setConfirming("close")}
-            className="rounded-control border border-line-200 px-4 py-2 text-sm font-semibold text-ink-900"
+            className="btn-secondary px-4 py-2 text-sm"
           >
             모집 마감
           </button>
@@ -85,7 +85,7 @@ export default function OwnerActions({ projectId, recruitStatus, dealStatus, pen
           <button
             type="button"
             onClick={() => setConfirming("cancel")}
-            className="rounded-control border border-line-200 px-4 py-2 text-sm font-bold text-ink-500"
+            className="btn-secondary px-4 py-2 text-sm text-ink-500"
           >
             취소
           </button>
