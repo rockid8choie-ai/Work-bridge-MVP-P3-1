@@ -11,7 +11,7 @@
 
 - 배포: https://workbridge-gray.vercel.app (Vercel 프로젝트 `workbridge`, 팀 `rockid8choie-3144s-projects`). **이 주소만 공개용.** `workbridge-rockid8choie-3144s-projects.vercel.app` 쪽은 Vercel 보호가 걸려 로그인으로 튕긴다.
 - 배포 속도(10/15 저녁): 홈·로그인·목록 0.05~0.4초. 함수 리전 sin1 ↔ Neon 싱가포르. 첫 요청(콜드 스타트)만 1~1.5초.
-- 리포: https://github.com/rockid8choie-ai/Work-bridge-MVP-P3-1 (**private**, 제출 시 public 전환)
+- 리포: https://github.com/rockid8choie-ai/Work-bridge-MVP-P3-1 (**public 전환 완료 10/26**)
 - 데모 계정: `owner@workbridge.test` / `pro@workbridge.test` (비밀번호 `demo1234`)
 - **Mac 과 Windows 양쪽에서 작업한다.** Mac `~/Projects/workbridge`, Windows `C:\PROJECTS\workbridge` (둘 다 env·의존성 준비됨). **세션 시작은 반드시 `git pull --rebase origin main` 부터** — 10/15 에 두 머신이 서로 모른 채 갈라졌었다.
 - 마지막 커밋: 아래 git log 참고 — 작업 트리 깨끗, origin/main 과 동일
