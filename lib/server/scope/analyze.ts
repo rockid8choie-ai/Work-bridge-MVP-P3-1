@@ -13,7 +13,18 @@ import { scopeAnalysisOut, type ScopeAnalysisOut } from "@/lib/server/scope/sche
  * 프로젝트당 재분석 가능. 최신 분석이 리포트가 된다.
  */
 
-const MODEL = process.env.ANTHROPIC_MODEL || "claude-sonnet-5-5";
+/**
+ * LLM 공급자 선택 — OPENAI_API_KEY 가 있으면 OpenAI, 없고 ANTHROPIC_API_KEY 가 있으면 Anthropic, 둘 다 없으면 규칙 폴백.
+ * 사용자 결정(11/5): 운영 키는 OpenAI(ChatGPT) 로 간다. Anthropic 경로는 호환용으로 남긴다.
+ */
+const OPENAI_MODEL = process.env.OPENAI_MODEL || "gpt-4o-mini";
+const ANTHROPIC_MODEL = process.env.ANTHROPIC_MODEL || "claude-sonnet-5-5";
+
+function pickProvider(): { name: "openai" | "anthropic"; model: string } | null {
+  if (process.env.OPENAI_API_KEY) return { name: "openai", model: OPENAI_MODEL };
+  if (process.env.ANTHROPIC_API_KEY) return { name: "anthropic", model: ANTHROPIC_MODEL };
+  return null;
+}
 
 export async function analyzeProject(projectId: string) {
   const project = await prisma.project.findUnique({
@@ -36,12 +47,13 @@ export async function analyzeProject(projectId: string) {
   let result: ScopeAnalysisOut | null = null;
   let model = "rule";
 
-  if (process.env.ANTHROPIC_API_KEY) {
+  const provider = pickProvider();
+  if (provider) {
     try {
-      result = await callLlm(input);
-      model = MODEL;
+      result = await callLlm(provider, input);
+      model = provider.model;
     } catch (e) {
-      console.warn("[scope] LLM 분해 실패 → 규칙 폴백:", e instanceof Error ? e.message : e);
+      console.warn(`[scope] ${provider.name} 분해 실패 → 규칙 폴백:`, e instanceof Error ? e.message : e);
     }
   }
   if (!result) result = ruleBasedAnalysis(input);
@@ -85,7 +97,45 @@ function flagOutOfRange(category: string, it: ScopeAnalysisOut["items"][number])
   return "";
 }
 
-async function callLlm(input: Parameters<typeof buildUserMessage>[0]): Promise<ScopeAnalysisOut> {
+async function callLlm(provider: { name: "openai" | "anthropic"; model: string }, input: Parameters<typeof buildUserMessage>[0]): Promise<ScopeAnalysisOut> {
+  const text = provider.name === "openai" ? await callOpenAi(provider.model, input) : await callAnthropic(provider.model, input);
+  const parsed = scopeAnalysisOut.parse(JSON.parse(extractJson(text)));
+
+  // ETC 비율 1/3 초과면 폴백 (재요청은 비용 대비 효과가 낮아 생략)
+  const etc = parsed.items.filter((i) => i.code === "ETC").length;
+  if (etc * 3 > parsed.items.length) throw new Error("ETC 비율 초과");
+
+  return parsed;
+}
+
+/** OpenAI Chat Completions — JSON 모드로 받는다. 키: OPENAI_API_KEY, 모델: OPENAI_MODEL(기본 gpt-4o-mini) */
+async function callOpenAi(model: string, input: Parameters<typeof buildUserMessage>[0]): Promise<string> {
+  const res = await fetch("https://api.openai.com/v1/chat/completions", {
+    method: "POST",
+    headers: {
+      "content-type": "application/json",
+      authorization: `Bearer ${process.env.OPENAI_API_KEY!}`,
+    },
+    body: JSON.stringify({
+      model,
+      temperature: 0.2,
+      max_tokens: 2500,
+      response_format: { type: "json_object" },
+      messages: [
+        { role: "system", content: SYSTEM_PROMPT },
+        { role: "user", content: buildUserMessage(input) },
+      ],
+    }),
+    signal: AbortSignal.timeout(40_000),
+  });
+  if (!res.ok) throw new Error(`openai ${res.status} ${(await res.text().catch(() => "")).slice(0, 200)}`);
+
+  const json = (await res.json()) as { choices?: { message?: { content?: string | null } }[] };
+  return json.choices?.[0]?.message?.content ?? "";
+}
+
+/** Anthropic Messages — 호환용. 키: ANTHROPIC_API_KEY, 모델: ANTHROPIC_MODEL */
+async function callAnthropic(model: string, input: Parameters<typeof buildUserMessage>[0]): Promise<string> {
   const res = await fetch("https://api.anthropic.com/v1/messages", {
     method: "POST",
     headers: {
@@ -94,7 +144,7 @@ async function callLlm(input: Parameters<typeof buildUserMessage>[0]): Promise<S
       "anthropic-version": "2023-06-01",
     },
     body: JSON.stringify({
-      model: MODEL,
+      model,
       max_tokens: 2500,
       system: SYSTEM_PROMPT,
       messages: [{ role: "user", content: buildUserMessage(input) }],
@@ -104,14 +154,7 @@ async function callLlm(input: Parameters<typeof buildUserMessage>[0]): Promise<S
   if (!res.ok) throw new Error(`anthropic ${res.status}`);
 
   const json = (await res.json()) as { content?: { type: string; text?: string }[] };
-  const text = json.content?.find((c) => c.type === "text")?.text ?? "";
-  const parsed = scopeAnalysisOut.parse(JSON.parse(extractJson(text)));
-
-  // ETC 비율 1/3 초과면 폴백 (재요청은 비용 대비 효과가 낮아 생략)
-  const etc = parsed.items.filter((i) => i.code === "ETC").length;
-  if (etc * 3 > parsed.items.length) throw new Error("ETC 비율 초과");
-
-  return parsed;
+  return json.content?.find((c) => c.type === "text")?.text ?? "";
 }
 
 function extractJson(text: string) {
