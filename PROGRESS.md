@@ -14,6 +14,7 @@
 - **AI 분해 엔진**: 기본은 규칙 기반 "데모 엔진"(PR #29, 라벨만). **11/5 사용자 결정: OpenAI(ChatGPT) 키를 넣는다** → `OPENAI_API_KEY`(+`OPENAI_MODEL`, 기본 gpt-4o-mini) 우선, Anthropic 은 호환용. 키 투입: `npx vercel env add OPENAI_API_KEY production` 후 `npx vercel --prod` 재배포(env 는 재배포해야 반영). 분해 결과 배지에 모델명이 뜨면 성공, "데모 엔진" 이 계속 뜨면 키·로그 확인.
 - **11/5 저녁 셀프 리뷰 `docs/12-셀프리뷰-2026-11-05.md`**: 높음 2건(계약 동시 서명 레이스 → 조건부 updateMany 로 원자화, 소셜 로그인 미검증 이메일 자동 연결 → 검증된 이메일만) + 중간 1건(OpenAI `max_completion_tokens`) 을 **PR #31** 에서 수정. 보류 4건(결제 승인 재호출, 제시 레이스, 다음 마일스톤 todo, 배너 문구)은 docs/12 2장.
 - **OPENAI_API_KEY 는 Vercel Production 에 들어갔지만 재배포 전**(배포가 env 보다 먼저). PR #31 머지 → 자동 배포 → 분해 1회로 배지 모델명 확인. 노출된 키는 확인 뒤 폐기·재발급.
+- **11/5 밤 심사 직전 상태**: PR #31 머지(809c170)·배포 Ready. 프로덕션에서 **OpenAI 실호출 확인**(gpt-4o-mini, 5공정, 9.7초, 근거 문장 포함). 서명 패드는 로컬 브라우저로 서명→저장→계약서 서명란 표시까지 확인(캡처 3장 바탕화면 `실무프로젝트 3-1`). **시연 데이터**: 데모 전문가 3명(pro·pro2·pro3@workbridge.test), 지원서 5건을 프로덕션에 시드(PR #32). 시연 직전 다시 넣으려면 `ALLOW_DEMO=1 npx tsx prisma/seed.ts`(거래 중인 공사는 안 건드림).
 - **머지·`vercel --prod` 는 자동 모드가 막음** → 사용자가 명령을 직접 실행. 홈 디렉터리에서 치면 묻는다: `npx vercel --prod --yes --cwd C:\PROJECTS\workbridge`.
 
 - **10/26 서비스명 = "BFS Working Bridge"** (사용자 지시). 로고는 `public/bfs-wordmark.png`(BFS 승인 원본, bfs-os-v2 와 동일 파일) + "Working Bridge" 텍스트 — `components/Logo.tsx`. **워드마크 글자 재현·변형 금지.** 리포·문서 이름(WorkBridge)은 그대로.
