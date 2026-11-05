@@ -48,7 +48,7 @@ export function ruleBasedAnalysis(input: { title: string; description: string; c
 
   return {
     items,
-    assumptions: ["수량은 소액 보수 기준 기본값으로 가정했습니다. 현장 실측 후 전문가가 조정합니다."],
+    assumptions: ["수량은 소액 보수 기준 기본값으로 가정했습니다. 현장 실측 후 전문가가 조정합니다.", "데모 엔진: 공정 사전의 키워드 매칭으로 초안을 만들었습니다. LLM 키를 넣으면 설명문 전체를 읽고 분해합니다."],
     totalEstimate: items.reduce((s, i) => s + i.estimate, 0),
     confidence: "low",
     missingInfo: ["면적·개소 수", "사진", "발생 시점"],
