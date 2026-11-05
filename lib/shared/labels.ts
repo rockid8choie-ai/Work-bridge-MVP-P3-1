@@ -41,6 +41,43 @@ export const APPLICATION_STYLE = {
   rejected: "bg-canvas-50 text-ink-500",
 } as const;
 
+export const OFFER_LABEL = {
+  pending: "응답 대기",
+  agreed: "합의 완료",
+  declined: "거부",
+} as const;
+
+export const MILESTONE_LABEL = {
+  todo: "대기",
+  in_progress: "작업 중",
+  submitted: "승인 요청",
+  approved: "승인·지급",
+} as const;
+
+export const MILESTONE_STYLE = {
+  todo: "bg-canvas-100 text-ink-500",
+  in_progress: "bg-accent-50 text-accent-600",
+  submitted: "bg-warn-50 text-warn-700",
+  approved: "bg-ok-50 text-ok-700",
+} as const;
+
+export const PAYMENT_LABEL = {
+  pending: "결제 대기",
+  paid: "에스크로 보관 중",
+  partially_settled: "일부 지급",
+  settled: "지급 완료",
+  refunded: "환불",
+} as const;
+
+/** 거래 진행 바 — 거래 화면 상단 (내부 화면) */
+export const DEAL_STEPS = [
+  { key: "awaiting_contract", label: "범위·금액 합의" },
+  { key: "contract", label: "계약 서명" },
+  { key: "awaiting_payment", label: "에스크로 결제" },
+  { key: "in_progress", label: "작업·단계 승인" },
+  { key: "completed", label: "완료·평가" },
+] as const;
+
 export const PROJECT_CATEGORIES = [
   "누수·방수",
   "전기·조명",

@@ -4,6 +4,7 @@ import { Suspense, useState } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { apiPost, ApiRequestError } from "@/lib/client/api";
+import SocialLogin from "@/components/SocialLogin";
 
 type Role = "client" | "freelancer";
 
@@ -103,6 +104,8 @@ function SignupForm() {
       >
         {busy ? "가입 중…" : "가입하기"}
       </button>
+
+      <SocialLogin enabled={{ google: true, kakao: true }} />
 
       <p className="text-center text-sm text-ink-500">
         이미 계정이 있나요?{" "}

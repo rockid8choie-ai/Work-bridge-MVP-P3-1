@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { prisma } from "@/lib/server/db";
 import { dateKo } from "@/lib/shared/labels";
+import { reviewSummary } from "@/lib/server/reviews";
 
 /**
  * 사용자 공개 프로필 (B-05, RFP 6장 기본 필수 화면).
@@ -40,6 +41,7 @@ export default async function PublicProfilePage({ params }: { params: Promise<{ 
   if (!user) notFound();
 
   const isClient = user.role === "client";
+  const summary = await reviewSummary(user.id);
 
   return (
     <article className="card max-w-xl p-6 sm:p-8">
@@ -111,10 +113,37 @@ export default async function PublicProfilePage({ params }: { params: Promise<{ 
         </p>
       )}
 
-      <section className="mt-8 rounded-card border border-dashed border-line-200 bg-canvas-50 p-5">
-        <h2 className="text-h3 text-ink-900">평점과 리뷰</h2>
-        <p className="mt-1.5 text-sm text-ink-500">거래가 완료되면 상호 평가가 여기에 쌓입니다.</p>
-        <p className="mt-2 text-xs font-semibold text-ink-400">스프린트 2에서 구현</p>
+      <section className="mt-8">
+        <div className="flex items-end justify-between">
+          <h2 className="text-h3 text-ink-900">평점과 리뷰</h2>
+          {summary.count > 0 && (
+            <p className="text-sm text-ink-700">
+              <span className="text-warn-500">★</span> <b className="text-ink-900">{summary.average}</b> <span className="text-ink-400">· {summary.count}건</span>
+            </p>
+          )}
+        </div>
+        {summary.count === 0 ? (
+          <p className="mt-2 rounded-2xl bg-canvas-50 px-4 py-6 text-center text-sm text-ink-400">아직 완료된 거래의 평가가 없어요</p>
+        ) : (
+          <ul className="mt-3 space-y-2">
+            {summary.reviews.map((r) => (
+              <li key={r.id} className="rounded-control border border-line-200 p-3.5">
+                <p className="text-sm">
+                  <span className="text-warn-500">{"★".repeat(r.rating)}</span>
+                  <span className="text-line-200">{"★".repeat(5 - r.rating)}</span>
+                  <span className="ml-2 font-semibold text-ink-900">{r.author.name}</span>
+                  <span className="ml-1.5 text-[12px] text-ink-400">{dateKo(r.createdAt)} · {r.project.title}</span>
+                </p>
+                {r.tags.length > 0 && (
+                  <p className="mt-1.5 flex flex-wrap gap-1">
+                    {r.tags.map((t) => <span key={t} className="rounded-full bg-line-100 px-2 py-0.5 text-[11px] text-ink-700">{t}</span>)}
+                  </p>
+                )}
+                {r.comment && <p className="mt-1.5 text-[13px] leading-relaxed text-ink-700">{r.comment}</p>}
+              </li>
+            ))}
+          </ul>
+        )}
       </section>
 
       <Link href="/projects" className="mt-8 inline-block text-sm font-semibold text-ink-400">

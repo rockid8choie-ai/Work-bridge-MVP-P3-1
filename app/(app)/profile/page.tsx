@@ -4,6 +4,7 @@ import { Suspense, useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { apiGet, ApiRequestError } from "@/lib/client/api";
 import { ErrorText, inputClass, Label } from "@/components/Field";
+import AvatarUpload from "@/components/AvatarUpload";
 
 const BUILDING_TYPES = ["상가", "오피스", "다세대", "기타"] as const;
 
@@ -24,6 +25,7 @@ function ProfileForm() {
   const next = params.get("next");
 
   const [role, setRole] = useState<"client" | "freelancer" | null>(null);
+  const [me, setMe] = useState<{ name: string; avatarUrl: string | null } | null>(null);
   const [skills, setSkills] = useState<Skill[]>([]);
   const [form, setForm] = useState<Record<string, string>>({});
   const [picked, setPicked] = useState<string[]>([]);
@@ -40,6 +42,7 @@ function ProfileForm() {
         apiGet<{ skills: Skill[] }>("/api/skills"),
       ]);
       setRole(me.role);
+      apiGet<{ user: { name: string; avatarUrl: string | null } | null }>("/api/auth/me").then((d) => d.user && setMe(d.user)).catch(() => {});
       setSkills(sk.skills);
       if (me.profile) {
         const p = me.profile as Record<string, unknown>;
@@ -113,6 +116,8 @@ function ProfileForm() {
           </p>
         )}
       </div>
+
+      {me && <AvatarUpload name={me.name} initialUrl={me.avatarUrl} />}
 
       {role === "client" ? (
         <>

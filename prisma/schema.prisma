@@ -29,15 +29,16 @@ model User {
   bio          String?
   createdAt    DateTime @default(now())
 
-  oauthAccounts  OAuthAccount[]
-  refreshTokens  RefreshToken[]
-  clientProfile  ClientProfile?
-  vendorProfile  VendorProfile?
-  projects       Project[]      @relation("ClientProjects")
-  applications   Application[]
-  reviewsWritten Review[]
-  notifications  Notification[]
-  bookmarks      Bookmark[]
+  oauthAccounts   OAuthAccount[]
+  refreshTokens   RefreshToken[]
+  clientProfile   ClientProfile?
+  vendorProfile   VendorProfile?
+  projects        Project[]      @relation("ClientProjects")
+  applications    Application[]
+  reviewsWritten  Review[]       @relation("ReviewsWritten")
+  reviewsReceived Review[]       @relation("ReviewsReceived")
+  notifications   Notification[]
+  bookmarks       Bookmark[]
 }
 
 /// 동일 이메일 가입자가 있으면 새 계정을 만들지 않고 여기에 연결한다 (B-03)
@@ -166,6 +167,12 @@ model Project {
   @@index([clientId])
 }
 
+enum OfferStatus {
+  pending // 건물주가 제시, 전문가 응답 대기
+  agreed // 전문가 동의 → 계약서 생성
+  declined // 전문가 거부 → 지원 거절 + 모집 복귀
+}
+
 enum ApplicationStatus {
   pending // 검토중
   accepted // 수락
@@ -183,6 +190,14 @@ model Application {
   status         ApplicationStatus @default(pending)
   createdAt      DateTime          @default(now())
 
+  // 금액 합의 (A-03, A-04 · D-05: 1회 제시 → 동의/거부). 수락된 지원에만 값이 생긴다.
+  offerAmount    Int?
+  offerDays      Int?
+  offerMessage   String?
+  offerStatus    OfferStatus?
+  offeredAt      DateTime?
+  offerDecidedAt DateTime?
+
   project    Project   @relation(fields: [projectId], references: [id], onDelete: Cascade)
   freelancer User      @relation(fields: [freelancerId], references: [id])
   contract   Contract?
@@ -198,6 +213,9 @@ model ScopeAnalysis {
   projectId     String
   totalEstimate Int
   model         String // 사용한 LLM (폴백이면 "rule")
+  assumptions   String[] @default([])
+  missingInfo   String[] @default([])
+  confidence    String? // low | medium | high
   createdAt     DateTime @default(now())
 
   project Project     @relation(fields: [projectId], references: [id], onDelete: Cascade)
@@ -209,13 +227,18 @@ model ScopeAnalysis {
 /// 이 행 하나가 계약 범위 조항이자 마일스톤이자 부분 정산 단위가 된다 (D-02).
 /// JSON 한 칸에 담으면 리포트 출력 외에는 못 쓰기 때문에 행으로 쪼갠다.
 model ScopeItem {
-  id          String @id @default(cuid())
+  id          String  @id @default(cuid())
   analysisId  String
   sortOrder   Int
   name        String // 예: 방수 재시공
   description String
   estimate    Int
   rationale   String // 산정 근거 (A-01 필수)
+  code        String? // 공정 사전 코드 (ETC = 사전 밖)
+  quantity    Float?
+  unit        String?
+  conditional Boolean @default(false) // 진단 결과에 따라 달라지는 공정
+  editedBy    String? // 전문가가 고친 행이면 그 userId — AI 원안과 구분 (docs/06 5장)
 
   analysis  ScopeAnalysis @relation(fields: [analysisId], references: [id], onDelete: Cascade)
   milestone Milestone?
@@ -232,8 +255,10 @@ model Contract {
   applicationId      String    @unique
   agreedAmount       Int
   scopeSnapshot      Json // 체결 시점의 ScopeItem 사본
+  durationDays       Int       @default(0)
   clientSignedAt     DateTime?
   freelancerSignedAt DateTime?
+  signedAt           DateTime? // 양측 서명이 모두 찬 시각 = 체결
   createdAt          DateTime  @default(now())
 
   project     Project     @relation(fields: [projectId], references: [id], onDelete: Cascade)
@@ -260,7 +285,9 @@ model Milestone {
   status      MilestoneStatus @default(todo)
   fee         Int? // 수수료 10%
   net         Int? // 실지급액
+  submittedAt DateTime?
   approvedAt  DateTime?
+  note        String? // 납품 요청 시 전문가 메모
 
   contract  Contract   @relation(fields: [contractId], references: [id], onDelete: Cascade)
   scopeItem ScopeItem? @relation(fields: [scopeItemId], references: [id])
@@ -284,7 +311,10 @@ model Payment {
   pgPaymentKey String?
   amount       Int
   status       PaymentStatus @default(pending)
+  method       String? // 카드 · 간편결제 …
+  receiptUrl   String?
   paidAt       DateTime?
+  createdAt    DateTime      @default(now())
 
   contract Contract @relation(fields: [contractId], references: [id], onDelete: Cascade)
 
@@ -303,6 +333,7 @@ model Review {
   id        String          @id @default(cuid())
   projectId String
   authorId  String
+  targetId  String // 평가 대상 — 프로필에서 바로 조회하기 위해 둔다 (A-13)
   direction ReviewDirection
   rating    Int // 1-5
   comment   String?
@@ -310,10 +341,12 @@ model Review {
   createdAt DateTime        @default(now())
 
   project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
-  author  User    @relation(fields: [authorId], references: [id])
+  author  User    @relation("ReviewsWritten", fields: [authorId], references: [id])
+  target  User    @relation("ReviewsReceived", fields: [targetId], references: [id])
 
   @@unique([projectId, direction])
   @@index([authorId])
+  @@index([targetId])
 }
 
 model Notification {

@@ -89,10 +89,11 @@ export default async function MyApplicationsPage() {
                 내 제안 <b className="text-ink-900">{won(a.proposedAmount)}</b> · {a.proposedDays}일 · {dateKo(a.createdAt)} 지원
                 {a.project.budget != null && <span className="text-ink-400"> · 건물주 예산 {won(a.project.budget)}</span>}
               </p>
-              {a.status === "accepted" && a.project.dealStatus === "awaiting_contract" && (
-                <p className="mt-3 rounded-control bg-ok-50 px-3 py-2.5 text-[13px] text-ok-700">
-                  수락됐어요. 다음 단계(공정표 확정 · 금액 합의 · 계약)는 스프린트 2에서 열립니다.
-                </p>
+              {a.status === "accepted" && a.project.dealStatus && a.project.dealStatus !== "cancelled" && !gone && (
+                <div className="mt-3 flex items-center justify-between rounded-control bg-ok-50 px-3 py-2.5 text-[13px] text-ok-700">
+                  <span>{a.project.dealStatus === "awaiting_contract" ? "수락됐어요. 범위표를 확인하고 금액 합의로 넘어가세요." : `${DEAL_LABEL[a.project.dealStatus]} 단계예요.`}</span>
+                  <Link href={`/projects/${a.project.id}/deal`} className="shrink-0 font-bold">거래 화면 →</Link>
+                </div>
               )}
             </li>
           );

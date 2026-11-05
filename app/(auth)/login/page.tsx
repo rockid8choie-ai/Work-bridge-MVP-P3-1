@@ -4,6 +4,7 @@ import { Suspense, useState } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { apiPost, ApiRequestError } from "@/lib/client/api";
+import SocialLogin from "@/components/SocialLogin";
 
 export default function LoginPage() {
   return (
@@ -77,6 +78,8 @@ function LoginForm() {
       >
         {busy ? "확인 중…" : "로그인"}
       </button>
+
+      <SocialLogin next={next} enabled={{ google: true, kakao: true }} />
 
       <p className="text-center text-sm text-ink-500">
         계정이 없나요?{" "}
