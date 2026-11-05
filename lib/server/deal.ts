@@ -1,5 +1,6 @@
 import "server-only";
 
+import { createHash } from "node:crypto";
 import type { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/server/db";
 import { ApiError } from "@/lib/server/api";
@@ -59,6 +60,13 @@ export async function loadDeal(projectId: string) {
   if (!project) throw new ApiError(404, "NOT_FOUND", "프로젝트를 찾을 수 없어요");
   return { project, application: project.applications[0] ?? null, analysis: project.analyses[0] ?? null };
 }
+
+/** 서명 대상 문서의 지문 — 범위 사본·금액·기간이 하나라도 바뀌면 값이 달라진다. 계약서 하단에 표시해 "무엇에 서명했는지" 를 고정한다. */
+export function hashDocument(doc: { agreedAmount: number; durationDays: number; scopeSnapshot: SnapshotItem[] }) {
+  return createHash("sha256").update(JSON.stringify(doc)).digest("hex");
+}
+
+export type SignatureInput = { name: string; signature: string };
 
 export function assertParty(deal: Awaited<ReturnType<typeof loadDeal>>, userId: string) {
   const isClient = deal.project.clientId === userId;
@@ -175,13 +183,15 @@ export async function decideOffer(projectId: string, freelancerId: string, decis
       where: { id: deal.application.id },
       data: { offerStatus: "agreed", offerDecidedAt: now },
     });
+    const durationDays = deal.application.offerDays ?? deal.application.proposedDays;
     const contract = await tx.contract.create({
       data: {
         projectId,
         applicationId: deal.application.id,
         agreedAmount,
-        durationDays: deal.application.offerDays ?? deal.application.proposedDays,
+        durationDays,
         scopeSnapshot: snapshot as unknown as Prisma.InputJsonValue,
+        documentHash: hashDocument({ agreedAmount, durationDays, scopeSnapshot: snapshot }),
       },
       select: { id: true },
     });
@@ -190,8 +200,8 @@ export async function decideOffer(projectId: string, freelancerId: string, decis
   });
 }
 
-/** A-06 전자 서명. 양측이 모두 서명하면 체결: 마일스톤 생성 + awaiting_payment */
-export async function signContract(projectId: string, userId: string) {
+/** A-06 전자 서명 — 서명 패드 이미지 + 서명자 이름을 증적으로 남긴다. 양측이 모두 서명하면 체결: 마일스톤 생성 + awaiting_payment */
+export async function signContract(projectId: string, userId: string, sig: SignatureInput) {
   return prisma.$transaction(async (tx) => {
     const deal = await loadDeal(projectId);
     const { isClient } = assertParty(deal, userId);
@@ -200,16 +210,24 @@ export async function signContract(projectId: string, userId: string) {
     if (contract.signedAt) throw new ApiError(409, "ALREADY_SEALED", "이미 체결된 계약이에요");
 
     const field = isClient ? "clientSignedAt" : "freelancerSignedAt";
-    if (contract[field]) throw new ApiError(409, "ALREADY_SIGNED", "이미 서명했어요");
-
+    const nameField = isClient ? "clientSignName" : "freelancerSignName";
+    const sigField = isClient ? "clientSignature" : "freelancerSignature";
     const now = new Date();
-    const otherSigned = isClient ? contract.freelancerSignedAt : contract.clientSignedAt;
-    const sealed = Boolean(otherSigned);
 
-    await tx.contract.update({
-      where: { id: contract.id },
-      data: { [field]: now, ...(sealed && { signedAt: now }) },
+    // 내 서명란이 비어 있을 때만 쓴다 — 같은 사람이 두 번 눌러도 한 번만 기록된다
+    const signed = await tx.contract.updateMany({
+      where: { id: contract.id, [field]: null },
+      data: { [field]: now, [nameField]: sig.name, [sigField]: sig.signature },
     });
+    if (signed.count === 0) throw new ApiError(409, "ALREADY_SIGNED", "이미 서명했어요");
+
+    // 체결 판정도 조건부 갱신으로 — 양측이 동시에 서명해도 정확히 한 요청만 체결 처리(마일스톤 생성)를 맡는다.
+    // (11/5 셀프 리뷰: 이전 코드는 트랜잭션 밖에서 읽은 상대 서명 여부로 판단해 동시 서명 시 둘 다 '미체결'로 끝날 수 있었다)
+    const sealedNow = await tx.contract.updateMany({
+      where: { id: contract.id, clientSignedAt: { not: null }, freelancerSignedAt: { not: null }, signedAt: null },
+      data: { signedAt: now },
+    });
+    const sealed = sealedNow.count === 1;
 
     const counterpart = isClient ? deal.application!.freelancerId : deal.project.clientId;
 

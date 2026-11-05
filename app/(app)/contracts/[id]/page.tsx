@@ -120,19 +120,29 @@ export default async function ContractPage({ params }: { params: Promise<{ id: s
       </section>
 
       <section className="mt-8 grid gap-3 border-t border-line-200 pt-6 sm:grid-cols-2">
-        <Sig who="갑 (건물주)" name={client.name} at={c.clientSignedAt} />
-        <Sig who="을 (전문가)" name={vendor.name} at={c.freelancerSignedAt} />
+        <Sig who="갑 (건물주)" name={client.name} at={c.clientSignedAt} signName={c.clientSignName} image={c.clientSignature} />
+        <Sig who="을 (전문가)" name={vendor.name} at={c.freelancerSignedAt} signName={c.freelancerSignName} image={c.freelancerSignature} />
       </section>
-      <p className="mt-4 text-[11.5px] text-ink-400">전자 서명은 로그인한 당사자가 계약서 전문을 확인하고 서명 버튼을 누른 시각을 서버가 기록한 것입니다. 생성 {dateKo(c.createdAt)}.</p>
+      <p className="mt-4 text-[11.5px] text-ink-400">
+        전자 서명은 로그인한 당사자가 계약서 전문을 확인하고 이름과 손글씨 서명을 입력한 시각을 서버가 기록한 것입니다. 생성 {dateKo(c.createdAt)}.
+        {c.documentHash && (
+          <>
+            {" "}문서 지문(SHA-256) <code className="break-all">{c.documentHash}</code> — 제2조 범위·제3조 금액·기간이 하나라도 바뀌면 이 값이 달라집니다.
+          </>
+        )}
+      </p>
     </article>
   );
 }
 
-function Sig({ who, name, at }: { who: string; name: string; at: Date | null }) {
+function Sig({ who, name, at, signName, image }: { who: string; name: string; at: Date | null; signName: string | null; image: string | null }) {
   return (
     <div className={`rounded-control border p-4 ${at ? "border-ok-600 bg-ok-50" : "border-dashed border-line-200"}`}>
       <p className="text-caption text-ink-400">{who}</p>
       <p className="mt-1 text-lg font-bold text-ink-900">{name}</p>
+      {/* eslint-disable-next-line @next/next/no-img-element -- data URL 서명 이미지 */}
+      {at && image && <img src={image} alt={`${signName ?? name} 서명`} className="mt-2 h-16 w-auto max-w-full rounded bg-white/70 px-2" />}
+      {at && signName && signName !== name && <p className="mt-1 text-[12px] text-ink-500">서명자 기재: {signName}</p>}
       <p className={`mt-1 text-[12.5px] ${at ? "text-ok-700" : "text-ink-400"}`}>{at ? `전자 서명 ${at.toLocaleString("ko-KR")}` : "미서명"}</p>
     </div>
   );

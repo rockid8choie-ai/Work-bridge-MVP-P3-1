@@ -118,8 +118,9 @@ async function callOpenAi(model: string, input: Parameters<typeof buildUserMessa
     },
     body: JSON.stringify({
       model,
-      temperature: 0.2,
-      max_tokens: 2500,
+      // gpt-5·o 계열은 temperature 를 거부하고 max_tokens 대신 max_completion_tokens 만 받는다 — 모델을 바꿔도 조용히 폴백으로 떨어지지 않게
+      ...(model.startsWith("gpt-4") ? { temperature: 0.2 } : {}),
+      max_completion_tokens: 2500,
       response_format: { type: "json_object" },
       messages: [
         { role: "system", content: SYSTEM_PROMPT },
