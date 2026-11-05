@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { apiGet, apiSend, ApiRequestError } from "@/lib/client/api";
 import { APPLICATION_LABEL, APPLICATION_STYLE, won } from "@/lib/shared/labels";
@@ -65,12 +66,28 @@ export default function ApplicantList({ projectId }: { projectId: string }) {
 
   const pending = data.applications.filter((a) => a.status === "pending").length;
   const decided = data.project.dealStatus !== null;
+  const accepted = data.applications.find((a) => a.status === "accepted");
 
   return (
     <div>
       <p className="text-sm text-ink-500">
         전체 {data.applications.length}건 · 검토중 {pending}건
       </p>
+
+      {/* 수락 직후 다음 단계가 끊겨 보이지 않게 — 거래 화면(범위 합의→계약→결제→리뷰)으로 바로 보낸다 */}
+      {decided && data.project.dealStatus !== "cancelled" && (
+        <div className="mt-4 flex flex-wrap items-center justify-between gap-3 rounded-control bg-accent-50 p-4">
+          <div>
+            <p className="font-bold text-ink-900">
+              {accepted ? `${accepted.freelancer.name} 전문가와 거래가 시작됐어요` : "거래가 진행 중이에요"}
+            </p>
+            <p className="mt-0.5 text-[13px] text-ink-600">다음 단계: 범위표 확인 → 금액 합의 → 계약서 서명 → 안전 결제 → 완료 승인 → 리뷰</p>
+          </div>
+          <Link href={`/projects/${projectId}/deal`} className="btn-primary shrink-0 px-4 py-2 text-sm">
+            거래 화면으로 →
+          </Link>
+        </div>
+      )}
 
       {error && <p className="mt-3 rounded-control bg-danger-50 px-3 py-2 text-sm text-danger-600">{error}</p>}
 

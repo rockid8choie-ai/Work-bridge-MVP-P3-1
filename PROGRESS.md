@@ -1,13 +1,18 @@
 # PROGRESS — 작업 인수인계
 
 > 새 세션·새 머신에서는 **이 파일부터** 읽는다. 매 작업 단위마다 갱신하고 커밋·푸시한다.
-> 최종 갱신: 2026-10-26 (제출물: ERD 그림·API 명세 PDF·발표 프롬프트 완료. 10/26 디자인 PR #24·#25·#26·#27 머지 — 디자인 시스템 v2 + 풍성함 레이어 프로덕션 반영. 고급 필수 미구현)
+> 최종 갱신: 2026-11-05 (PR #28 머지로 **고급 필수 전 구간 + 소셜 로그인 + 프로필 이미지 프로덕션 반영**. 11/5 프로덕션 E2E `e2e-sprint2.sh` 62/62 통과(결제 전까지). AI 분해 공급자를 OpenAI 로 전환하는 PR 진행 중)
 
 ---
 
 ## 0. 지금 상태 한 줄
 
-**PR #23 이 10/19 main 에 머지됐고(8616424) 프로덕션에서 E2E 67/67 통과.** 기본 필수 33항목 중 소셜 로그인(#2, Google·Kakao 키 필요)과 프로필 이미지 업로드(B-31) 둘만 남았다. 스프린트 1 마감(10/17)은 지났으니 이 둘은 스프린트 2 와 병행. **다음 행동 = B-31 프로필 이미지 업로드(Vercel Blob) → 스프린트 2 #13 AI 공정 분해(키 필요).**
+**11/5 PR #28(df31dfd) 머지 — 기본 필수 33 + 고급 필수 14 전부 코드·프로덕션 반영.** 거래 화면 `/projects/[id]/deal` 에서 AI 범위표 → 금액 합의 → 계약서·양측 서명 → 토스 sandbox 에스크로 → 단계 승인(수수료 10%) → 상호 리뷰까지 한 화면. 소셜 로그인(Google·Kakao)·프로필 이미지(Vercel Blob) 포함. 키 전부 Vercel Production 에 투입됨.
+
+- **11/5 검증**: `SKIP_PAYMENT=1 bash scripts/e2e-sprint2.sh https://workbridge-gray.vercel.app` → **62/62 통과**(가입→AI 분해→지원→수락→범위 수정→금액 제시·동의→계약서 생성→양측 서명→마일스톤·awaiting_payment→거부 경로→화면 라우트). 결제 이후(에스크로→승인→리뷰)는 토스 sandbox 라 브라우저로 확인. 로컬은 `ALLOW_PAYMENT_SIMULATION=1` 로 띄우면 103검사 전부 자동. **돌리기 전 `npx tsx scripts/cleanup-test-data.ts`** — e2e 계정이 남아 있으면 가입 409 로 전부 실패한다(11/5 겪음).
+- **외부 리뷰 오해 주의(11/5)**: "고급 필수 미구현, 지원 수락까지만 동작" 피드백은 PR #28 이전 배포 또는 옛 PROGRESS 문구를 본 것. 거래 화면은 **수락 뒤 내 공사 상세 → 거래 진행** 으로 들어간다. 심사자가 길을 못 찾을 수 있으니 README·발표에 거래 동선을 명시할 것.
+- **AI 분해 엔진**: 기본은 규칙 기반 "데모 엔진"(PR #29, 라벨만). **11/5 사용자 결정: OpenAI(ChatGPT) 키를 넣는다** → `OPENAI_API_KEY`(+`OPENAI_MODEL`, 기본 gpt-4o-mini) 우선, Anthropic 은 호환용. 키 투입: `npx vercel env add OPENAI_API_KEY production` 후 `npx vercel --prod` 재배포(env 는 재배포해야 반영). 분해 결과 배지에 모델명이 뜨면 성공, "데모 엔진" 이 계속 뜨면 키·로그 확인.
+- **머지는 자동 모드가 막음** → 사용자가 `gh pr merge <n> --merge --delete-branch` 를 직접 실행.
 
 - **10/26 서비스명 = "BFS Working Bridge"** (사용자 지시). 로고는 `public/bfs-wordmark.png`(BFS 승인 원본, bfs-os-v2 와 동일 파일) + "Working Bridge" 텍스트 — `components/Logo.tsx`. **워드마크 글자 재현·변형 금지.** 리포·문서 이름(WorkBridge)은 그대로.
 - **10/26 디자인(완료)**: PR #24(docs/08 토큰) → PR #26 **디자인 시스템 v2**(`docs/11-디자인-시스템.md`, `app/globals.css` 토큰·유틸리티, 화면 용어 '프로젝트'→'내 건물 공사'·'공사 찾기'·'찜한 공사' 등 UI만 변경, 라우트·API·DB 이름 그대로) → PR #27 **풍성함 레이어**(`components/HeroVisual.tsx`·`Skyline.tsx`·`Counter.tsx`, 2단 히어로·흐르는 띠·카테고리 타일·숫자 밴드, 사진·외부 라이브러리 없음, reduced-motion 시 전부 정지). 프로덕션 확인됨. 헤드라인 "‘계약 범위’를 먼저 합의합니다."(사용자 문구). 빌딩왕 비교 캡처는 바탕화면 `비교_빌딩왕_홈.png`. 디자인 바꿀 땐 docs/11 규칙 따르고 프리뷰 먼저. 사진 쓰려면 라이선스 확인된 실사 필요.
