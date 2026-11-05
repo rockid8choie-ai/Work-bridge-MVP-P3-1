@@ -26,6 +26,10 @@ async function main() {
   });
   const ownerIds = owners.map((o) => o.id);
 
+  // Review.authorId / targetId 도 RESTRICT — 테스트 계정이 쓰거나 받은 리뷰를 먼저 비운다
+  const removedReviews = await prisma.review.deleteMany({ where: { OR: [{ authorId: { in: ownerIds } }, { targetId: { in: ownerIds } }] } });
+  console.log(`테스트 리뷰 ${removedReviews.count}건 삭제`);
+
   const removedProjects = await prisma.project.deleteMany({ where: { clientId: { in: ownerIds } } });
   console.log(`테스트 프로젝트 ${removedProjects.count}건 삭제`);
 

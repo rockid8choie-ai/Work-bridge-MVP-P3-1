@@ -19,11 +19,13 @@ export default async function AppLayout({ children }: { children: React.ReactNod
       ? [
           { href: "/projects", label: "공사 찾기" },
           { href: "/me/projects", label: "내 건물 공사" },
+          { href: "/me/payments", label: "결제 내역" },
         ]
       : [
           { href: "/projects", label: "공사 찾기" },
           { href: "/me/applications", label: "내 지원" },
           { href: "/me/bookmarks", label: "찜한 공사" },
+          { href: "/me/payments", label: "정산 내역" },
         ];
 
   return (
@@ -56,9 +58,14 @@ export default async function AppLayout({ children }: { children: React.ReactNod
               href="/profile"
               className="ml-1 inline-flex items-center gap-2 rounded-full border border-line-200 bg-paper py-1 pl-1 pr-3 transition-colors hover:border-ink-400"
             >
-              <span className="flex size-6 items-center justify-center rounded-full bg-ink-900 text-[11px] font-bold text-white">
-                {user.name.slice(0, 1)}
-              </span>
+              {user.avatarUrl ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img src={user.avatarUrl} alt="" className="size-6 rounded-full object-cover" />
+              ) : (
+                <span className="flex size-6 items-center justify-center rounded-full bg-ink-900 text-[11px] font-bold text-white">
+                  {user.name.slice(0, 1)}
+                </span>
+              )}
               <span className="hidden text-ink-900 sm:inline">{user.name}</span>
               <span className="hidden text-[11px] text-ink-400 sm:inline">
                 {user.role === "client" ? "건물주" : "전문가"}

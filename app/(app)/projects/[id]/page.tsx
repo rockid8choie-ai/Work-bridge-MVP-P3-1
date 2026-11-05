@@ -126,13 +126,16 @@ export default async function ProjectDetailPage({ params }: { params: Promise<{ 
             dealStatus={project.dealStatus}
             pendingCount={pendingCount}
           />
-          <section className="mt-6 rounded-card border border-dashed border-line-200 bg-canvas-50 p-5">
-            <h2 className="text-h3 text-ink-900">AI 공정 분해</h2>
+          <section className="mt-6 rounded-card border border-line-200 bg-canvas-50 p-5">
+            <h2 className="text-h3 text-ink-900">{project.dealStatus ? "거래 진행" : "AI 공정 분해"}</h2>
             <p className="mt-1.5 text-sm leading-relaxed text-ink-500">
-              공사 내용을 단위 공정으로 쪼개 항목별 단가를 산정합니다. 그 결과가 그대로 계약 범위 조항이자 작업
-              단계이자 정산 단위가 됩니다.
+              {project.dealStatus
+                ? "범위표 확정 · 금액 합의 · 계약 서명 · 에스크로 결제 · 단계 승인 · 평가가 거래 화면에서 이어집니다."
+                : "공사 내용을 단위 공정으로 쪼개 항목별 단가를 산정합니다. 그 결과가 그대로 계약 범위 조항이자 작업 단계이자 정산 단위가 됩니다."}
             </p>
-            <p className="mt-3 text-xs font-semibold text-ink-400">스프린트 2에서 구현</p>
+            <Link href={`/projects/${id}/deal`} className="btn-primary mt-3 px-4 py-2 text-sm">
+              {project.dealStatus ? "거래 화면 열기" : "범위표 만들기"}
+            </Link>
           </section>
         </>
       )}
@@ -148,9 +151,12 @@ export default async function ProjectDetailPage({ params }: { params: Promise<{ 
           <p className="mt-2 text-sm text-ink-700">
             {won(myApplication.proposedAmount)} · {myApplication.proposedDays}일 · {dateKo(myApplication.createdAt)} 지원
           </p>
-          <Link href="/me/applications" className="mt-3 inline-block text-[13px] font-semibold text-accent-600">
-            내 지원 현황 보기 →
-          </Link>
+          <div className="mt-3 flex gap-3 text-[13px] font-semibold">
+            {myApplication.status === "accepted" && project.dealStatus && project.dealStatus !== "cancelled" && (
+              <Link href={`/projects/${id}/deal`} className="btn-primary px-4 py-2">거래 화면 열기</Link>
+            )}
+            <Link href="/me/applications" className="self-center text-accent-600">내 지원 현황 보기 →</Link>
+          </div>
         </section>
       )}
 

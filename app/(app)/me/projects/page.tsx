@@ -92,9 +92,15 @@ export default async function MyProjectsPage() {
                 ) : (
                   <span className="text-ink-500">검토중 지원 {p._count.applications}건</span>
                 )}
-                <Link href={`/projects/${p.id}/applicants`} className="font-semibold text-accent-600">
-                  지원자 관리 →
-                </Link>
+                {p.dealStatus && p.dealStatus !== "cancelled" ? (
+                  <Link href={`/projects/${p.id}/deal`} className="font-semibold text-accent-600">
+                    거래 화면 →
+                  </Link>
+                ) : (
+                  <Link href={`/projects/${p.id}/applicants`} className="font-semibold text-accent-600">
+                    지원자 관리 →
+                  </Link>
+                )}
               </div>
             </li>
           );
