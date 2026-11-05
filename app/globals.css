@@ -303,6 +303,9 @@ body {
   background: var(--color-paper);
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
+  /* 한글은 단어 중간에서 줄이 끊기지 않게(keep-all). 긴 URL·해시는 넘칠 때만 끊는다(anywhere). */
+  word-break: keep-all;
+  overflow-wrap: anywhere;
 }
 
 ::placeholder {

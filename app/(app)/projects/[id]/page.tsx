@@ -87,10 +87,10 @@ export default async function ProjectDetailPage({ params }: { params: Promise<{ 
         </p>
       </header>
 
-      <dl className="mt-6 grid grid-cols-3 gap-3 rounded-2xl bg-canvas-50 p-4 text-sm">
+      <dl className="mt-6 grid grid-cols-3 gap-2 rounded-2xl bg-canvas-50 p-4 text-sm sm:gap-3">
         <div>
           <dt className="text-caption text-ink-400">예산</dt>
-          <dd className="mt-0.5 font-bold text-ink-900">{won(project.budget)}</dd>
+          <dd className="mt-0.5 whitespace-nowrap font-bold tabular-nums text-ink-900">{won(project.budget)}</dd>
         </div>
         <div>
           <dt className="text-caption text-ink-400">모집 마감</dt>

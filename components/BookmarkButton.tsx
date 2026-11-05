@@ -25,7 +25,7 @@ export default function BookmarkButton({ projectId, initial }: { projectId: stri
           setBusy(false);
         }
       }}
-      className={`rounded-control border px-3.5 py-2 text-sm font-bold transition-colors ${
+      className={`shrink-0 whitespace-nowrap rounded-control border px-3.5 py-2 text-sm font-bold transition-colors ${
         on ? "border-warn-500 bg-warn-50 text-warn-700" : "border-line-200 text-ink-700 hover:border-ink-400"
       }`}
     >
