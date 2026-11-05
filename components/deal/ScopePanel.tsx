@@ -105,7 +105,7 @@ export default function ScopePanel({ projectId, analysis, budget, canAnalyze, bu
         </div>
         {analysis && (
           <span className={`shrink-0 rounded-full px-2.5 py-1 text-[11px] font-semibold ${analysis.model === "rule" ? "bg-warn-50 text-warn-700" : analysis.model === "vendor" ? "bg-ok-50 text-ok-700" : "bg-accent-50 text-accent-600"}`}>
-            {analysis.model === "rule" ? "규칙 기반 초안" : analysis.model === "vendor" ? "전문가 작성" : `AI · ${analysis.model}`}
+            {analysis.model === "rule" ? "AI 분해 초안 (데모 엔진)" : analysis.model === "vendor" ? "전문가 작성" : `AI · ${analysis.model}`}
           </span>
         )}
       </div>
@@ -115,7 +115,7 @@ export default function ScopePanel({ projectId, analysis, budget, canAnalyze, bu
           <p className="text-sm text-ink-500">아직 범위표가 없어요.</p>
           {canAnalyze && (
             <button type="button" disabled={busy !== null} onClick={() => run("analyze")} className="btn-primary mt-3 px-5 py-2.5 text-sm">
-              {busy === "analyze" ? "분해 중… (최대 40초)" : "AI로 공정 분해하기"}
+              {busy === "analyze" ? "분해 중…" : "AI로 공정 분해하기"}
             </button>
           )}
           {canEdit && (
