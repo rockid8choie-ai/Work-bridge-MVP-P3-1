@@ -3,7 +3,11 @@
 import { useRouter } from "next/navigation";
 import { apiPost } from "@/lib/client/api";
 
-export default function LogoutButton() {
+export default function LogoutButton({
+  className = "text-ink-400 hover:text-ink-700",
+}: {
+  className?: string;
+}) {
   const router = useRouter();
 
   return (
@@ -14,7 +18,7 @@ export default function LogoutButton() {
         router.push("/");
         router.refresh();
       }}
-      className="text-ink-400 transition-colors hover:text-ink-700"
+      className={`transition-colors ${className}`}
     >
       로그아웃
     </button>
