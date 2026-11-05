@@ -70,8 +70,13 @@ export type ContractView = {
   id: string;
   agreedAmount: number;
   durationDays: number;
+  documentHash: string | null;
   clientSignedAt: string | null;
+  clientSignName: string | null;
+  clientSignature: string | null;
   freelancerSignedAt: string | null;
+  freelancerSignName: string | null;
+  freelancerSignature: string | null;
   signedAt: string | null;
   createdAt: string;
   scopeSnapshot: SnapshotItemView[];

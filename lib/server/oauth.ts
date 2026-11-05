@@ -71,6 +71,7 @@ export function authorizeUrl(p: Provider, origin: string, state: string) {
   return u.toString();
 }
 
+/** email 은 제공자가 "검증됨" 이라고 준 경우에만 담는다 — 미검증 이메일로 기존 비밀번호 계정에 자동 연결되면 계정 탈취가 된다 (11/5 셀프 리뷰) */
 export type SocialProfile = { providerUserId: string; email: string | null; name: string; avatarUrl: string | null };
 
 /** code → access token → 사용자 정보 */
@@ -98,18 +99,20 @@ export async function fetchProfile(p: Provider, code: string, origin: string): P
   if (!infoRes.ok) throw new ApiError(401, "OAUTH_PROFILE_FAILED", `${PROVIDERS[p].label} 사용자 정보를 가져오지 못했어요`);
 
   if (p === "google") {
+    const verified = info.email_verified === true || info.email_verified === "true";
     return {
       providerUserId: String(info.sub),
-      email: typeof info.email === "string" ? info.email.toLowerCase() : null,
+      email: verified && typeof info.email === "string" ? info.email.toLowerCase() : null,
       name: typeof info.name === "string" && info.name ? info.name : "Google 사용자",
       avatarUrl: typeof info.picture === "string" ? info.picture : null,
     };
   }
   const account = (info.kakao_account ?? {}) as Record<string, unknown>;
   const profile = (account.profile ?? {}) as Record<string, unknown>;
+  const kakaoVerified = account.is_email_valid === true && account.is_email_verified === true;
   return {
     providerUserId: String(info.id),
-    email: typeof account.email === "string" ? account.email.toLowerCase() : null,
+    email: kakaoVerified && typeof account.email === "string" ? account.email.toLowerCase() : null,
     name: typeof profile.nickname === "string" && profile.nickname ? profile.nickname : "카카오 사용자",
     avatarUrl: typeof profile.profile_image_url === "string" ? profile.profile_image_url : null,
   };

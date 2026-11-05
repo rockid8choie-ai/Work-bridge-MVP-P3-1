@@ -256,9 +256,14 @@ model Contract {
   agreedAmount       Int
   scopeSnapshot      Json // 체결 시점의 ScopeItem 사본
   durationDays       Int       @default(0)
-  clientSignedAt     DateTime?
-  freelancerSignedAt DateTime?
-  signedAt           DateTime? // 양측 서명이 모두 찬 시각 = 체결
+  documentHash        String? // 서명 대상 문서(범위 사본 + 금액 + 기간)의 SHA-256 — 무엇에 서명했는지 고정 (11/5)
+  clientSignedAt      DateTime?
+  clientSignName      String? // 서명자가 직접 입력한 이름
+  clientSignature     String? // 서명 패드 PNG data URL
+  freelancerSignedAt  DateTime?
+  freelancerSignName  String?
+  freelancerSignature String?
+  signedAt            DateTime? // 양측 서명이 모두 찬 시각 = 체결
   createdAt          DateTime  @default(now())
 
   project     Project     @relation(fields: [projectId], references: [id], onDelete: Cascade)

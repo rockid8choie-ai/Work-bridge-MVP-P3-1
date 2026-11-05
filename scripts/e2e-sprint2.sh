@@ -73,10 +73,13 @@ r=$(req pro2 GET /contracts/$CID); check "GET contract page (stranger) → redir
 
 echo "== A-06 양측 서명 → 체결 → 마일스톤 생성 + awaiting_payment"
 r=$(req owner POST /api/projects/$P/payments); check "pay before seal → 409" 409 "$(code "$r")"
-r=$(req owner POST /api/projects/$P/contract/sign); check "owner signs" 200 "$(code "$r")"; check "not sealed yet" False "$(body "$r" | jget "['data']['sealed']")"
-r=$(req owner POST /api/projects/$P/contract/sign); check "owner signs twice → 409" 409 "$(code "$r")"
-r=$(req pro2 POST /api/projects/$P/contract/sign); check "stranger signs → 403" 403 "$(code "$r")"
-r=$(req pro1 POST /api/projects/$P/contract/sign); check "pro1 signs" 200 "$(code "$r")"; check "sealed" True "$(body "$r" | jget "['data']['sealed']")"
+SIG='data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII='
+r=$(req owner POST /api/projects/$P/contract/sign '{"name":"E2E건물주"}'); check "sign without signature → 400" 400 "$(code "$r")"
+r=$(req owner POST /api/projects/$P/contract/sign "{\"name\":\"E2E건물주\",\"signature\":\"$SIG\"}"); check "owner signs" 200 "$(code "$r")"; check "not sealed yet" False "$(body "$r" | jget "['data']['sealed']")"
+r=$(req owner POST /api/projects/$P/contract/sign "{\"name\":\"E2E건물주\",\"signature\":\"$SIG\"}"); check "owner signs twice → 409" 409 "$(code "$r")"
+r=$(req pro2 POST /api/projects/$P/contract/sign "{\"name\":\"E2E전문가2\",\"signature\":\"$SIG\"}"); check "stranger signs → 403" 403 "$(code "$r")"
+r=$(req pro1 POST /api/projects/$P/contract/sign "{\"name\":\"E2E전문가1\",\"signature\":\"$SIG\"}"); check "pro1 signs" 200 "$(code "$r")"; check "sealed" True "$(body "$r" | jget "['data']['sealed']")"
+r=$(req owner GET /api/projects/$P/deal); check "signature stored" True "$(body "$r" | python -X utf8 -c "import sys,json; c=json.load(sys.stdin)['data']['project']['contract']; print(bool(c['clientSignature']) and c['clientSignName']=='E2E건물주' and bool(c['documentHash']))")"
 r=$(req owner GET /api/projects/$P/deal); check "dealStatus awaiting_payment" awaiting_payment "$(body "$r" | jget "['data']['project']['dealStatus']")"
 check "milestones = scope rows" 3 "$(body "$r" | jget "['data']['project']['contract']['milestones'].__len__()")"
 check "snapshot sum = agreed" True "$(body "$r" | python -X utf8 -c "import sys,json; d=json.load(sys.stdin); c=d['data']['project']['contract']; print(sum(i['estimate'] for i in c['scopeSnapshot'])==c['agreedAmount'])")"
